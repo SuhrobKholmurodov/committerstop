@@ -7,6 +7,7 @@ import { Search, X } from "lucide-react";
 import type { Mode } from "@/types";
 import ErrorMessage from "@/components/common/ErrorMessage";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
+import { Helmet } from "react-helmet-async";
 
 const Home = () => {
   const [mode, setMode] = useState<Mode>("commits");
@@ -26,6 +27,9 @@ const Home = () => {
 
   return (
     <div className="max-w-5xl mx-auto p-4">
+      <Helmet>
+        <title>Most active GitHub users in Tajikistan</title>
+      </Helmet>
       <h1 className="text-3xl font-bold mb-4">
         Активные GitHub пользователи Таджикистана
       </h1>

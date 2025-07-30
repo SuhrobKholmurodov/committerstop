@@ -11,9 +11,6 @@ import { useGetGitHubUserByUsernameQuery } from "@/api/githubApi";
 import ErrorMessage from "./ErrorMessage";
 import LoadingSpinner from "./LoadingSpinner";
 import { ArrowUpRight } from "lucide-react";
-import { useEffect, useState } from "react";
-import type { GitHubUser } from "@/types";
-
 interface UserDialogProps {
   username: string;
   open: boolean;
@@ -22,24 +19,13 @@ interface UserDialogProps {
 
 const UserDialog = ({ username, open, onOpenChange }: UserDialogProps) => {
   const {
-    data: userInfoData,
+    data: userInfo,
     error,
     isLoading,
   } = useGetGitHubUserByUsernameQuery(username, {
     skip: !open,
+    refetchOnMountOrArgChange: true,
   });
-
-  const [userInfo, setUserInfo] = useState<GitHubUser | undefined>(undefined);
-  useEffect(() => {
-    if (open) {
-      setUserInfo(undefined);
-    }
-  }, [username, open]);
-  useEffect(() => {
-    if (userInfoData) {
-      setUserInfo(userInfoData);
-    }
-  }, [userInfoData]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -52,7 +38,6 @@ const UserDialog = ({ username, open, onOpenChange }: UserDialogProps) => {
 
         <DialogDescription className="mt-4 min-h-[200px]">
           {isLoading && <LoadingSpinner />}
-
           {!isLoading && error && (
             <ErrorMessage
               title="Error loading data"
