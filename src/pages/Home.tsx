@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useGetTajikistanUsersQuery } from "../features/api/committersApi";
+import { useGetTajikistanUsersQuery } from "../api/committersApi";
 import UserTable from "@/components/common/UserTable";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Input } from "@/components/ui/input";
