@@ -1,52 +1,101 @@
-import { useState } from "react";
-import {
-  useGetTajikistanUsersQuery,
-  type Mode,
-} from "../features/api/committersApi";
+import { useState, useMemo } from "react";
+import { useGetTajikistanUsersQuery } from "../features/api/committersApi";
 import UserTable from "@/components/common/UserTable";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Input } from "@/components/ui/input";
+import { Search, X } from "lucide-react";
+import type { Mode } from "@/types";
 
 const Home = () => {
   const [mode, setMode] = useState<Mode>("commits");
+  const [search, setSearch] = useState("");
+
   const { data, error, isLoading } = useGetTajikistanUsersQuery(mode);
+
+  const filteredUsers = useMemo(() => {
+    if (!data) return [];
+    if (!search.trim()) return data;
+
+    return data.filter((user) =>
+      user.username.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [data, search]);
 
   return (
     <div className="max-w-5xl mx-auto p-4">
       <h1 className="text-3xl font-bold mb-4">
         Активные GitHub пользователи (Таджикистан)
       </h1>
+      <div className="mb-6 flex items-center w-full">
+        <ToggleGroup
+          type="single"
+          value={mode}
+          onValueChange={(val) => val && setMode(val as Mode)}
+          className="inline-flex rounded-lg bg-gray-200 dark:bg-gray-800 p-2"
+        >
+          {["commits", "contributions", "all"].map((value) => (
+            <ToggleGroupItem
+              key={value}
+              value={value}
+              aria-label={value}
+              className="cursor-pointer select-none rounded-md px-5 py-2
+          text-gray-700 dark:text-gray-300
+          data-[state=on]:bg-blue-600 bg-gray-300 data-[state=on]:text-white
+          transition-colors duration-300 ease-in-out
+          hover:bg-blue-500 hover:text-white"
+            >
+              {value === "commits"
+                ? "Commits"
+                : value === "contributions"
+                ? "Contributions"
+                : "All"}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
 
-      <ToggleGroup
-        type="single"
-        value={mode}
-        onValueChange={(val) => val && setMode(val as Mode)}
-        className="mb-6 inline-flex rounded-lg bg-gray-200 dark:bg-gray-800 p-2"
-      >
-        {["commits", "contributions", "all"].map((value) => (
-          <ToggleGroupItem
-            key={value}
-            value={value}
-            aria-label={value}
-            className="cursor-pointer select-none rounded-md px-5 py-2
-              text-gray-700 dark:text-gray-300
-              data-[state=on]:bg-blue-600 bg-gray-300 data-[state=on]:text-white
-              transition-colors duration-300 ease-in-out
-              hover:bg-blue-500 hover:text-white"
-          >
-            {value === "commits"
-              ? "Commits"
-              : value === "contributions"
-              ? "Contributions"
-              : "All"}
-          </ToggleGroupItem>
-        ))}
-      </ToggleGroup>
-
+        <div className="relative w-80 ml-auto">
+          <Input
+            type="text"
+            placeholder="Поиск по имени пользователя..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="h-[42px] pl-10 pr-10 border-2 border-gray-300 dark:border-gray-700 
+         rounded-lg shadow-sm
+         focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50
+         hover:border-blue-400 hover:shadow-lg
+         transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] 
+         bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm
+         hover:bg-white dark:hover:bg-gray-900
+         focus:bg-white dark:focus:bg-gray-900
+         placeholder-gray-400 dark:placeholder-gray-500
+         text-gray-800 dark:text-gray-200
+         outline-none"
+          />
+          <Search
+            size={20}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none transition-colors duration-300 group-hover:text-blue-500"
+          />
+          {search && (
+            <X
+              size={18}
+              onClick={() => setSearch("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 
+           text-gray-400 cursor-pointer hover:text-red-500 
+           transition-colors duration-300 hover:scale-110 transform"
+            />
+          )}
+        </div>
+      </div>
       {isLoading && <p className="text-center mt-10">Loading...</p>}
       {error && (
         <p className="text-center text-red-500">Ошибка загрузки данных</p>
       )}
-      {data && <UserTable users={data} />}
+
+      {filteredUsers.length > 0 ? (
+        <UserTable users={filteredUsers} />
+      ) : (
+        !isLoading && <p className="text-center">Пользователи не найдены</p>
+      )}
     </div>
   );
 };

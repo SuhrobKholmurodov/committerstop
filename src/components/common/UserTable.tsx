@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { Committer } from "@/types/User";
+import type { Committer } from "@/types";
 
 interface UserTableProps {
   users: Committer[];

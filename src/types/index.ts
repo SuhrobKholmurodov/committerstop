@@ -5,3 +5,4 @@ export interface Committer {
   commits: number;
   avatar: string;
 }
+export type Mode = "commits" | "contributions" | "all";

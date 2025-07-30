@@ -1,7 +1,6 @@
-import type { Committer } from "@/types/User";
+import type { Committer, Mode } from "@/types";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-export type Mode = "commits" | "contributions" | "all";
 
 const modeToUrl: Record<Mode, string> = {
   commits: "https://committers.top/tajikistan",
