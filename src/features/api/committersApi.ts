@@ -1,7 +1,6 @@
 import type { Committer, Mode } from "@/types";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-
 const modeToUrl: Record<Mode, string> = {
   commits: "https://committers.top/tajikistan",
   contributions: "https://committers.top/tajikistan_public",
@@ -30,10 +29,11 @@ export const committersApi = createApi({
               ?.textContent?.replace(".", "") || "0",
             10
           );
+          const userCell = row.querySelector("td:nth-child(2)");
           const username =
-            row.querySelector("td:nth-child(2) a")?.textContent?.trim() || "";
+            userCell?.querySelector("a")?.textContent?.trim() || "";
           const profile =
-            row.querySelector("td:nth-child(2) a")?.getAttribute("href") || "";
+            userCell?.querySelector("a")?.getAttribute("href") || "";
           const commits = parseInt(
             row.querySelector("td:nth-child(3)")?.textContent || "0",
             10
@@ -43,11 +43,18 @@ export const committersApi = createApi({
               .querySelector("td:nth-child(4) img")
               ?.getAttribute("data-src") || "";
 
+          let realname = "";
+          if (userCell) {
+            const br = userCell.querySelector("br");
+            if (br && br.nextSibling) {
+              const textAfterBr = br.nextSibling.textContent?.trim() || "";
+              realname = textAfterBr.replace(/^\(|\)$/g, "");
+            }
+          }
           if (username) {
-            users.push({ rank, username, profile, commits, avatar });
+            users.push({ rank, username, profile, commits, avatar, realname });
           }
         });
-
         return users;
       },
     }),

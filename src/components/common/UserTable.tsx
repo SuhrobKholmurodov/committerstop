@@ -41,11 +41,18 @@ const UserTable = ({ users }: UserTableProps) => {
                 href={user.profile}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-600 dark:text-blue-400 hover:underline"
+                className="text-blue-500 hover:underline"
               >
                 {user.username}
               </a>
+              <br />
+              <span className="text-sm text-gray-500 ml-1">
+                {user.realname && user.realname.length > 0
+                  ? `(${user.realname})`
+                  : "()"}
+              </span>
             </TableCell>
+
             <TableCell className="text-center">{user.commits}</TableCell>
             <TableCell className="text-center">
               <img

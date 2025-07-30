@@ -1,6 +1,7 @@
 export interface Committer {
   rank: number;
   username: string;
+  realname?: string;
   profile: string;
   commits: number;
   avatar: string;

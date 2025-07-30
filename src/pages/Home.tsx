@@ -15,7 +15,6 @@ const Home = () => {
   const filteredUsers = useMemo(() => {
     if (!data) return [];
     if (!search.trim()) return data;
-
     return data.filter((user) =>
       user.username.toLowerCase().includes(search.toLowerCase())
     );
@@ -24,8 +23,9 @@ const Home = () => {
   return (
     <div className="max-w-5xl mx-auto p-4">
       <h1 className="text-3xl font-bold mb-4">
-        Активные GitHub пользователи (Таджикистан)
+        Активные GitHub пользователи Таджикистана
       </h1>
+
       <div className="mb-6 flex items-center w-full">
         <ToggleGroup
           type="single"
@@ -39,10 +39,10 @@ const Home = () => {
               value={value}
               aria-label={value}
               className="cursor-pointer select-none rounded-md px-5 py-2
-          text-gray-700 dark:text-gray-300
-          data-[state=on]:bg-blue-600 bg-gray-300 data-[state=on]:text-white
-          transition-colors duration-300 ease-in-out
-          hover:bg-blue-500 hover:text-white"
+                text-gray-700 dark:text-gray-300
+                data-[state=on]:bg-blue-600 bg-gray-300 data-[state=on]:text-white
+                transition-colors duration-300 ease-in-out
+                hover:bg-blue-500 hover:text-white"
             >
               {value === "commits"
                 ? "Commits"
@@ -60,32 +60,40 @@ const Home = () => {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="h-[42px] pl-10 pr-10 border-2 border-gray-300 dark:border-gray-700 
-         rounded-lg shadow-sm
-         focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50
-         hover:border-blue-400 hover:shadow-lg
-         transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] 
-         bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm
-         hover:bg-white dark:hover:bg-gray-900
-         focus:bg-white dark:focus:bg-gray-900
-         placeholder-gray-400 dark:placeholder-gray-500
-         text-gray-800 dark:text-gray-200
-         outline-none"
+              rounded-lg shadow-sm
+              focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50
+              hover:border-blue-400 hover:shadow-lg
+              transition-all duration-500 ease-[cubic-bezier(0.25,0.1,0.25,1)] 
+              bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm
+              hover:bg-white dark:hover:bg-gray-900
+              focus:bg-white dark:focus:bg-gray-900
+              placeholder-gray-400 dark:placeholder-gray-500
+              text-gray-800 dark:text-gray-200
+              outline-none"
           />
           <Search
             size={20}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none transition-colors duration-300 group-hover:text-blue-500"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none transition-colors duration-300"
           />
           {search && (
             <X
               size={18}
               onClick={() => setSearch("")}
               className="absolute right-3 top-1/2 -translate-y-1/2 
-           text-gray-400 cursor-pointer hover:text-red-500 
-           transition-colors duration-300 hover:scale-110 transform"
+                text-gray-400 cursor-pointer hover:text-red-500 
+                transition-colors duration-300 hover:scale-110 transform"
             />
           )}
         </div>
       </div>
+
+      {filteredUsers.length > 0 && (
+        <p className="mb-3 text-sm text-gray-600 dark:text-gray-400 text-right">
+          Найдено пользователей:{" "}
+          <span className="font-semibold">{filteredUsers.length}</span>
+        </p>
+      )}
+
       {isLoading && <p className="text-center mt-10">Loading...</p>}
       {error && (
         <p className="text-center text-red-500">Ошибка загрузки данных</p>
