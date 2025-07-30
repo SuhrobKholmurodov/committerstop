@@ -7,8 +7,9 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
 import { useGetGitHubUserByUsernameQuery } from "@/api/githubApi";
+import ErrorMessage from "./ErrorMessage";
+import LoadingSpinner from "./LoadingSpinner";
 
 interface UserDialogProps {
   username: string;
@@ -24,6 +25,7 @@ const UserDialog = ({ username, open, onOpenChange }: UserDialogProps) => {
   } = useGetGitHubUserByUsernameQuery(username, {
     skip: !open,
   });
+  console.log("UserDialog data:", userInfo, "error:", error);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -36,16 +38,16 @@ const UserDialog = ({ username, open, onOpenChange }: UserDialogProps) => {
 
         <DialogDescription className="mt-4 min-h-[200px]">
           {isLoading && (
-            <div className="flex justify-center items-center py-12 text-gray-500 dark:text-gray-400">
-              <Loader2 className="animate-spin mr-3" size={24} />
-              Loading...
+            <div>
+              <LoadingSpinner />
             </div>
           )}
-          {error && (
-            <p className="text-center text-red-500 font-medium mt-6">
-              Error loading user info
-            </p>
+          {!isLoading && error && (
+            <div>
+              <ErrorMessage />
+            </div>
           )}
+
           {userInfo && (
             <div className="space-y-4">
               <div className="flex items-center space-x-5">

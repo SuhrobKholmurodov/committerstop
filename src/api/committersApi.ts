@@ -16,7 +16,8 @@ export const committersApi = createApi({
   endpoints: (builder) => ({
     getTajikistanUsers: builder.query<Committer[], Mode>({
       query: (mode) => modeToUrl[mode],
-      transformResponse: (html: string): Committer[] => {
+      transformResponse: async (html: string) => {
+        await new Promise((res) => setTimeout(res, 500));
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, "text/html");
         const rows = doc.querySelectorAll("table.users-list tbody tr");

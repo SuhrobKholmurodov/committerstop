@@ -5,12 +5,16 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Input } from "@/components/ui/input";
 import { Search, X } from "lucide-react";
 import type { Mode } from "@/types";
+import ErrorMessage from "@/components/common/ErrorMessage";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 
 const Home = () => {
   const [mode, setMode] = useState<Mode>("commits");
   const [search, setSearch] = useState("");
 
-  const { data, error, isLoading } = useGetTajikistanUsersQuery(mode);
+  const { data, error, isLoading } = useGetTajikistanUsersQuery(mode, {
+    refetchOnMountOrArgChange: true,
+  });
 
   const filteredUsers = useMemo(() => {
     if (!data) return [];
@@ -25,7 +29,6 @@ const Home = () => {
       <h1 className="text-3xl font-bold mb-4">
         Активные GitHub пользователи Таджикистана
       </h1>
-
       <div className="mb-6 flex items-center w-full">
         <ToggleGroup
           type="single"
@@ -86,23 +89,27 @@ const Home = () => {
           )}
         </div>
       </div>
-
-      {filteredUsers.length > 0 && (
+      {filteredUsers.length > 0 && !error && (
         <p className="mb-3 text-sm text-gray-600 dark:text-gray-400 text-right">
           Найдено пользователей:{" "}
           <span className="font-semibold">{filteredUsers.length}</span>
         </p>
       )}
-
-      {isLoading && <p className="text-center mt-10">Loading...</p>}
+      {isLoading && <LoadingSpinner />}
       {error && (
-        <p className="text-center text-red-500">Ошибка загрузки данных</p>
+        <ErrorMessage
+          title="Error loading data"
+          message="Try refreshing the page."
+          className="mt-10"
+        />
       )}
-
-      {filteredUsers.length > 0 ? (
+      {!error && filteredUsers.length === 0 && !isLoading && (
+        <p className="text-center text-gray-600 dark:text-gray-400">
+          Пользователи не найдены
+        </p>
+      )}
+      {!error && filteredUsers.length > 0 && (
         <UserTable users={filteredUsers} />
-      ) : (
-        !isLoading && <p className="text-center">Пользователи не найдены</p>
       )}
     </div>
   );
