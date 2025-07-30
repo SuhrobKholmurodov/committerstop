@@ -29,7 +29,7 @@ const UserDialog = ({ username, open, onOpenChange }: UserDialogProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md rounded-md">
+      <DialogContent className="max-w-md sm:max-w-[360px] rounded-md">
         <DialogHeader className="pb-2 border-b border-gray-200 dark:border-gray-700">
           <DialogTitle className="text-xl font-semibold">
             User info: {username}
