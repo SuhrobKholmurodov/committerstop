@@ -10,6 +10,9 @@ import { Button } from "@/components/ui/button";
 import { useGetGitHubUserByUsernameQuery } from "@/api/githubApi";
 import ErrorMessage from "./ErrorMessage";
 import LoadingSpinner from "./LoadingSpinner";
+import { ArrowUpRight } from "lucide-react";
+import { useEffect, useState } from "react";
+import type { GitHubUser } from "@/types";
 
 interface UserDialogProps {
   username: string;
@@ -19,13 +22,24 @@ interface UserDialogProps {
 
 const UserDialog = ({ username, open, onOpenChange }: UserDialogProps) => {
   const {
-    data: userInfo,
+    data: userInfoData,
     error,
     isLoading,
   } = useGetGitHubUserByUsernameQuery(username, {
     skip: !open,
   });
-  console.log("UserDialog data:", userInfo, "error:", error);
+
+  const [userInfo, setUserInfo] = useState<GitHubUser | undefined>(undefined);
+  useEffect(() => {
+    if (open) {
+      setUserInfo(undefined);
+    }
+  }, [username, open]);
+  useEffect(() => {
+    if (userInfoData) {
+      setUserInfo(userInfoData);
+    }
+  }, [userInfoData]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -37,15 +51,14 @@ const UserDialog = ({ username, open, onOpenChange }: UserDialogProps) => {
         </DialogHeader>
 
         <DialogDescription className="mt-4 min-h-[200px]">
-          {isLoading && (
-            <div>
-              <LoadingSpinner />
-            </div>
-          )}
+          {isLoading && <LoadingSpinner />}
+
           {!isLoading && error && (
-            <div>
-              <ErrorMessage />
-            </div>
+            <ErrorMessage
+              title="Error loading data"
+              message="Try refreshing the page."
+              className="mt-10"
+            />
           )}
 
           {userInfo && (
@@ -64,9 +77,9 @@ const UserDialog = ({ username, open, onOpenChange }: UserDialogProps) => {
                     href={userInfo.html_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-600 dark:text-blue-400 hover:underline mt-1 text-sm"
+                    className="text-blue-600 flex items-center gap-1 dark:text-blue-400 hover:underline mt-1 text-sm"
                   >
-                    View GitHub Profile
+                    View GitHub Profile <ArrowUpRight size={16} />
                   </a>
                 </div>
               </div>

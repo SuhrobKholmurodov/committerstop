@@ -78,6 +78,7 @@ const UserTable = ({ users }: UserTableProps) => {
         <UserDialog
           username={selectedUser}
           open={dialogOpen}
+          key={selectedUser}
           onOpenChange={setDialogOpen}
         />
       )}
