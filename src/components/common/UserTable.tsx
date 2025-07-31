@@ -29,19 +29,19 @@ export const UserTable = ({ users }: UserTableProps) => {
       <div className="relative overflow-x-auto">
         <Table className="rounded-lg w-full">
           <TableCaption>
-            Список активных GitHub пользователей из Таджикистана
+            List of active GitHub users from Tajikistan
           </TableCaption>
           <TableHeader>
             <TableRow>
-              <TableHead className="text-center bg-gray-50/20 backdrop-blur-lg sticky left-0">
-                Ранг
+              <TableHead className="text-center dark:bg-gray-900/20 bg-gray-50/20 backdrop-blur-lg sticky left-0">
+                Rank
               </TableHead>
-              <TableHead className="min-w-[200px]">Пользователь</TableHead>
+              <TableHead className="min-w-[200px]">User</TableHead>
               <TableHead className="text-center min-w-[100px]">
-                Коммиты
+                Commits
               </TableHead>
               <TableHead className="text-center min-w-[100px]">
-                Аватар
+                Avatar
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -51,7 +51,7 @@ export const UserTable = ({ users }: UserTableProps) => {
                 key={user.username}
                 className="hover:bg-gray-50 dark:hover:bg-gray-800"
               >
-                <TableCell className="text-center bg-gray-50/20 backdrop-blur-lg font-medium sticky left-0">
+                <TableCell className="text-center dark:bg-gray-900/20 bg-gray-50/20 backdrop-blur-lg font-medium sticky left-0">
                   {user.rank}
                 </TableCell>
                 <TableCell>
