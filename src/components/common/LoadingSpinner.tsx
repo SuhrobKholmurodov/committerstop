@@ -1,6 +1,6 @@
 import { Loader2 } from "lucide-react";
 
-const LoadingSpinner = () => {
+export const LoadingSpinner = () => {
   return (
     <div className="flex flex-col items-center justify-center mt-12">
       <Loader2 className="animate-spin text-blue-500 mb-3" size={32} />
@@ -11,4 +11,3 @@ const LoadingSpinner = () => {
   );
 };
 
-export default LoadingSpinner;

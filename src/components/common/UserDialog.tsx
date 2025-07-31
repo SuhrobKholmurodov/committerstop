@@ -8,16 +8,16 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useGetGitHubUserByUsernameQuery } from "@/api/githubApi";
-import ErrorMessage from "./ErrorMessage";
-import LoadingSpinner from "./LoadingSpinner";
 import { ArrowUpRight } from "lucide-react";
+import { LoadingSpinner } from "./LoadingSpinner";
+import { ErrorMessage } from "./ErrorMessage";
 interface UserDialogProps {
   username: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-const UserDialog = ({ username, open, onOpenChange }: UserDialogProps) => {
+export const UserDialog = ({ username, open, onOpenChange }: UserDialogProps) => {
   const {
     data: userInfo,
     error,
@@ -114,5 +114,3 @@ const UserDialog = ({ username, open, onOpenChange }: UserDialogProps) => {
     </Dialog>
   );
 };
-
-export default UserDialog;

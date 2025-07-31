@@ -8,14 +8,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import UserDialog from "./UserDialog";
 import type { Committer } from "@/types";
+import { UserDialog } from "./UserDialog";
 
 interface UserTableProps {
   users: Committer[];
 }
 
-const UserTable = ({ users }: UserTableProps) => {
+export const UserTable = ({ users }: UserTableProps) => {
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -26,53 +26,61 @@ const UserTable = ({ users }: UserTableProps) => {
 
   return (
     <>
-      <Table className="border border-gray-300 dark:border-gray-700 rounded-lg overflow-hidden">
-        <TableCaption>
-          Список активных GitHub пользователей из Таджикистана
-        </TableCaption>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="text-center">Ранг</TableHead>
-            <TableHead>Пользователь</TableHead>
-            <TableHead className="text-center">Коммиты</TableHead>
-            <TableHead className="text-center">Аватар</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {users.map((user) => (
-            <TableRow
-              key={user.username}
-              className="hover:bg-gray-50 dark:hover:bg-gray-800"
-            >
-              <TableCell className="text-center font-medium">
-                {user.rank}
-              </TableCell>
-              <TableCell>
-                <button
-                  className="text-blue-500 hover:underline cursor-pointer bg-transparent border-none p-0"
-                  onClick={() => openDialog(user.username)}
-                >
-                  {user.username}
-                </button>
-                <br />
-                <span className="text-sm text-gray-500 ml-1">
-                  {user.realname && user.realname.length > 0
-                    ? `(${user.realname})`
-                    : "()"}
-                </span>
-              </TableCell>
-              <TableCell className="text-center">{user.commits}</TableCell>
-              <TableCell className="text-center">
-                <img
-                  src={user.avatar}
-                  alt={user.username}
-                  className="w-10 h-10 rounded-full mx-auto"
-                />
-              </TableCell>
+      <div className="relative overflow-x-auto">
+        <Table className="rounded-lg w-full">
+          <TableCaption>
+            Список активных GitHub пользователей из Таджикистана
+          </TableCaption>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="text-center bg-gray-50/20 backdrop-blur-lg sticky left-0">
+                Ранг
+              </TableHead>
+              <TableHead className="min-w-[200px]">Пользователь</TableHead>
+              <TableHead className="text-center min-w-[100px]">
+                Коммиты
+              </TableHead>
+              <TableHead className="text-center min-w-[100px]">
+                Аватар
+              </TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {users.map((user) => (
+              <TableRow
+                key={user.username}
+                className="hover:bg-gray-50 dark:hover:bg-gray-800"
+              >
+                <TableCell className="text-center bg-gray-50/20 backdrop-blur-lg font-medium sticky left-0">
+                  {user.rank}
+                </TableCell>
+                <TableCell>
+                  <button
+                    className="text-blue-500 hover:underline cursor-pointer bg-transparent border-none p-0"
+                    onClick={() => openDialog(user.username)}
+                  >
+                    {user.username}
+                  </button>
+                  <br />
+                  <span className="text-sm text-gray-500 ml-1">
+                    {user.realname && user.realname.length > 0
+                      ? `(${user.realname})`
+                      : "()"}
+                  </span>
+                </TableCell>
+                <TableCell className="text-center">{user.commits}</TableCell>
+                <TableCell className="text-center">
+                  <img
+                    src={user.avatar}
+                    alt={user.username}
+                    className="w-10 h-10 rounded-full mx-auto"
+                  />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
 
       {selectedUser && (
         <UserDialog
@@ -85,5 +93,3 @@ const UserTable = ({ users }: UserTableProps) => {
     </>
   );
 };
-
-export default UserTable;

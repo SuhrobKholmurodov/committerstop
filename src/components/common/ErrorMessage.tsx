@@ -6,7 +6,7 @@ interface ErrorMessageProps {
   className?: string;
 }
 
-const ErrorMessage = ({
+export const ErrorMessage = ({
   title = "Error loading data",
   message = "Please try again later.",
   className = "",
@@ -27,5 +27,3 @@ const ErrorMessage = ({
     </div>
   );
 };
-
-export default ErrorMessage;
