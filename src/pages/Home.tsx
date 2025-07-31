@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Search, X } from "lucide-react";
 import type { Committer, Mode } from "@/types";
 import { Helmet } from "react-helmet-async";
-import debounce from "lodash.debounce";
 import { ErrorMessage, LoadingSpinner, UserTable } from "@/components/common";
 import { useSearchParams } from "react-router-dom";
 
@@ -13,8 +12,8 @@ const Home = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const urlMode = searchParams.get("mode");
   const urlSearch = searchParams.get("search");
-
   const [mode, setMode] = useState<Mode>((urlMode as Mode) || "commits");
+  const [inputValue, setInputValue] = useState(urlSearch || "");
   const [search, setSearch] = useState(urlSearch || "");
   const [localData, setLocalData] = useState<Committer[]>([]);
   const [isTabSwitching, setIsTabSwitching] = useState(false);
@@ -44,11 +43,24 @@ const Home = () => {
     }
   }, [data]);
 
-  const handleSearchChange = debounce((val: string) => {
-    setSearch(val);
-  }, 300);
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setSearch(inputValue);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [inputValue]);
+
+  useEffect(() => {
+    setInputValue(urlSearch || "");
+    setSearch(urlSearch || "");
+  }, [urlSearch]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(e.target.value);
+  };
 
   const handleClearSearch = () => {
+    setInputValue("");
     setSearch("");
     const newParams = new URLSearchParams(searchParams);
     newParams.delete("search");
@@ -104,8 +116,8 @@ const Home = () => {
           <Input
             type="text"
             placeholder="Поиск по имени пользователя..."
-            value={search}
-            onChange={(e) => handleSearchChange(e.target.value)}
+            value={inputValue}
+            onChange={handleInputChange}
             className="h-[42px] px-10 py-4 sm:py-5 border-2 border-gray-300 dark:border-gray-700 
               rounded-lg shadow-sm
               focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50
@@ -122,7 +134,7 @@ const Home = () => {
             size={20}
             className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none transition-colors duration-300"
           />
-          {search && (
+          {inputValue && (
             <X
               size={18}
               onClick={handleClearSearch}
