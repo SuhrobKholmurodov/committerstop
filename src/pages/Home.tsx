@@ -8,6 +8,7 @@ import { Helmet } from "react-helmet-async";
 import { ErrorMessage, LoadingSpinner, Switcher, UserTable } from "@/components/common";
 import { useSearchParams } from "react-router-dom";
 
+const PAGE_SIZE = 20;
 const Home = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const urlMode = searchParams.get("mode");
@@ -17,6 +18,7 @@ const Home = () => {
   const [search, setSearch] = useState(urlSearch || "");
   const [localData, setLocalData] = useState<Committer[]>([]);
   const [isTabSwitching, setIsTabSwitching] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   const { data, error, isFetching } = useGetTajikistanUsersQuery(mode, {
     refetchOnMountOrArgChange: true,
@@ -74,6 +76,26 @@ const Home = () => {
       user.username.toLowerCase().includes(search.toLowerCase())
     );
   }, [localData, search]);
+
+
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [mode, search]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (
+        window.innerHeight + window.scrollY >= document.body.offsetHeight - 200 &&
+        visibleCount < filteredUsers.length
+      ) {
+        setVisibleCount((prev) => prev + PAGE_SIZE);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [visibleCount, filteredUsers.length]);
+
 
   return (
     <div className="max-w-5xl mx-auto p-4">
@@ -166,7 +188,16 @@ const Home = () => {
 
       {!error &&
         filteredUsers.length > 0 &&
-        !(isFetching || isTabSwitching) && <UserTable users={filteredUsers} />}
+        !(isFetching || isTabSwitching) && (
+          <>
+            <UserTable users={filteredUsers.slice(0, visibleCount)} />
+            {visibleCount < filteredUsers.length && (
+              <div className="flex justify-center my-4">
+                <LoadingSpinner />
+              </div>
+            )}
+          </>
+        )}
     </div>
   );
 };

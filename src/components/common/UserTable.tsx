@@ -2,7 +2,6 @@ import { useState } from "react";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -28,9 +27,6 @@ export const UserTable = ({ users }: UserTableProps) => {
     <>
       <div className="relative overflow-x-auto">
         <Table className="rounded-lg w-full">
-          <TableCaption>
-            List of active GitHub users from Tajikistan
-          </TableCaption>
           <TableHeader>
             <TableRow>
               <TableHead className="text-center dark:bg-gray-900/20 bg-gray-50/20 backdrop-blur-lg sticky left-0">
