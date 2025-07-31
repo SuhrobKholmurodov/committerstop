@@ -1,10 +1,10 @@
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useGetTajikistanUsersQuery } from "../api/committersApi";
 import UserTable from "@/components/common/UserTable";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Input } from "@/components/ui/input";
 import { Search, X } from "lucide-react";
-import type { Mode } from "@/types";
+import type { Committer, Mode } from "@/types";
 import ErrorMessage from "@/components/common/ErrorMessage";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { Helmet } from "react-helmet-async";
@@ -13,44 +13,48 @@ import debounce from "lodash.debounce";
 const Home = () => {
   const [mode, setMode] = useState<Mode>("commits");
   const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [localData, setLocalData] = useState<Committer[]>([]);
+  const [isTabSwitching, setIsTabSwitching] = useState(false);
 
-  const { data, error, isLoading } = useGetTajikistanUsersQuery(mode, {
+  const { data, error, isFetching } = useGetTajikistanUsersQuery(mode, {
     refetchOnMountOrArgChange: true,
+    refetchOnFocus: true,
+    refetchOnReconnect: true,
   });
 
-  const handleSearchChange = useCallback(
-    debounce((value: string) => {
-      setDebouncedSearch(value);
-    }, 400),
-    []
-  );
+  useEffect(() => {
+    setLocalData([]);
+    setIsTabSwitching(true);
+  }, [mode]);
 
   useEffect(() => {
-    handleSearchChange(search);
-  }, [search, handleSearchChange]);
+    if (data) {
+      setLocalData(data);
+      setIsTabSwitching(false);
+    }
+  }, [data]);
+
+  const debouncedSearch = debounce((val: string) => setSearch(val), 300);
 
   const filteredUsers = useMemo(() => {
-    if (!data) return [];
-    if (!debouncedSearch.trim()) return data;
-    return data.filter((user) =>
-      user.username.toLowerCase().includes(debouncedSearch.toLowerCase())
+    if (!localData) return [];
+    if (!search.trim()) return localData;
+    return localData.filter((user) =>
+      user.username.toLowerCase().includes(search.toLowerCase())
     );
-  }, [data, debouncedSearch]);
+  }, [localData, search]);
 
   return (
     <div className="max-w-5xl mx-auto p-4">
       <Helmet>
         <title>Most active GitHub users in Tajikistan</title>
       </Helmet>
+
       <h1 className="text-3xl font-bold sm:text-[14px] sm:text-center mb-4">
         Активные GitHub пользователи Таджикистана
       </h1>
 
-      <div
-        className="mb-6 sticky top-0 z-20 flex sm:flex-col-reverse flex-row items-center w-full justify-between sm:gap-4 
-        dark:bg-gray-900/70 backdrop-blur-lg p-2 rounded-md"
-      >
+      <div className="mb-6 sticky top-0 z-20 flex sm:flex-col-reverse flex-row items-center w-full justify-between sm:gap-4 dark:bg-gray-900/70 backdrop-blur-lg p-2 rounded-md">
         <ToggleGroup
           type="single"
           value={mode}
@@ -81,8 +85,7 @@ const Home = () => {
           <Input
             type="text"
             placeholder="Поиск по имени пользователя..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => debouncedSearch(e.target.value)}
             className="h-[42px] px-10 py-4 sm:py-5 border-2 border-gray-300 dark:border-gray-700 
               rounded-lg shadow-sm
               focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50
@@ -103,21 +106,14 @@ const Home = () => {
             <X
               size={18}
               onClick={() => setSearch("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 
-                text-gray-400 cursor-pointer hover:text-red-500 
-                transition-colors duration-300 hover:scale-110 transform"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer hover:text-red-500 transition-colors duration-300 hover:scale-110 transform"
             />
           )}
         </div>
       </div>
 
-      {filteredUsers.length > 0 && !error && (
-        <p className="mb-3 text-sm text-gray-600 dark:text-gray-400 text-right">
-          Найдено пользователей:{" "}
-          <span className="font-semibold">{filteredUsers.length}</span>
-        </p>
-      )}
-      {isLoading && <LoadingSpinner />}
+      {(isFetching || isTabSwitching) && <LoadingSpinner />}
+
       {error && (
         <ErrorMessage
           title="Error loading data"
@@ -125,14 +121,18 @@ const Home = () => {
           className="mt-10"
         />
       )}
-      {!error && filteredUsers.length === 0 && !isLoading && (
-        <p className="text-center text-gray-600 dark:text-gray-400">
-          Пользователи не найдены
-        </p>
-      )}
-      {!error && filteredUsers.length > 0 && (
-        <UserTable users={filteredUsers} />
-      )}
+
+      {!error &&
+        filteredUsers.length === 0 &&
+        !(isFetching || isTabSwitching) && (
+          <p className="text-center text-gray-600 dark:text-gray-400">
+            Пользователи не найдены
+          </p>
+        )}
+
+      {!error &&
+        filteredUsers.length > 0 &&
+        !(isFetching || isTabSwitching) && <UserTable users={filteredUsers} />}
     </div>
   );
 };
