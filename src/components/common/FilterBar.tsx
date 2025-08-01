@@ -1,22 +1,24 @@
 import { useState, useEffect } from "react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Input } from "@/components/ui/input";
-import { Search, X } from "lucide-react";
-import { Switcher } from "@/components/common";
+import { RefreshCw, Search, X } from "lucide-react";
+import { Toast, Switcher } from "@/components/common";
 import type { Mode } from "@/types";
 import { useSearchParams } from "react-router-dom";
 
 interface FilterBarProps {
   mode: Mode;
   setMode: (mode: Mode) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  refetch: () => Promise<any>;
 }
 
-export const FilterBar = ({ mode, setMode }: FilterBarProps) => {
+export const FilterBar = ({ mode, setMode, refetch }: FilterBarProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const urlSearch = searchParams.get("search") || "";
-
   const [inputValue, setInputValue] = useState(urlSearch);
   const [showStickySwitcher, setShowStickySwitcher] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -57,34 +59,64 @@ export const FilterBar = ({ mode, setMode }: FilterBarProps) => {
 
   const handleClearSearch = () => setInputValue("");
 
+  const handleRefetch = async () => {
+    setIsRefreshing(true);
+    try {
+      const result = await refetch();
+      if ("error" in result) {
+        Toast("error", "Error updating data");
+      } else if ("data" in result) {
+        Toast("success", "Data updated successfully");
+      } else {
+        Toast("info", "Update completed");
+      }
+    } catch {
+      Toast("error", "Error updating data");
+    } finally {
+      setTimeout(() => setIsRefreshing(false), 600);
+    }
+  };
+
+
   return (
     <div className="mb-6 py-2 sticky top-0 z-20 flex sm:flex-col flex-row items-center w-full justify-between sm:gap-4 backdrop-blur-lg rounded-md">
-      <ToggleGroup
-        type="single"
-        value={mode}
-        onValueChange={(val) => val && onModeChange(val as Mode)}
-        className="inline-flex rounded-lg bg-gray-200 sm:w-full dark:bg-gray-800 p-2"
-      >
-        {["commits", "contributions", "all"].map((value) => (
-          <ToggleGroupItem
-            key={value}
-            value={value}
-            aria-label={value}
-            className="cursor-pointer select-none rounded-md px-5 sm:px-8 py-2
-              text-gray-700 dark:text-gray-300
-              data-[state=on]:bg-blue-600 dark:data-[state=on]:bg-blue-600 bg-gray-300 dark:bg-gray-900 data-[state=on]:text-white
-              transition-colors ease-in-out
-              hover:bg-blue-500 hover:text-white"
-          >
-            {value === "commits"
-              ? "Commits"
-              : value === "contributions"
-              ? "Contributions"
-              : "All"}
-          </ToggleGroupItem>
-        ))}
-      </ToggleGroup>
-
+      <div className="flex items-center gap-2 sm:gap-4 sm:w-full">
+        <ToggleGroup
+          type="single"
+          value={mode}
+          onValueChange={(val) => val && onModeChange(val as Mode)}
+          className="inline-flex rounded-lg bg-gray-200 sm:w-full dark:bg-gray-800 p-2"
+        >
+          {["commits", "contributions", "all"].map((value) => (
+            <ToggleGroupItem
+              key={value}
+              value={value}
+              aria-label={value}
+              className="cursor-pointer select-none rounded-md px-5 sm:px-4 py-2 sm:py-4
+          text-gray-700 dark:text-gray-300
+          data-[state=on]:bg-blue-600 dark:data-[state=on]:bg-blue-600 bg-gray-300 dark:bg-gray-900 data-[state=on]:text-white
+          transition-colors ease-in-out
+          hover:bg-blue-500 hover:text-white"
+            >
+              {value === "commits"
+                ? "Commits"
+                : value === "contributions"
+                  ? "Contributions"
+                  : "All"}
+            </ToggleGroupItem>
+          ))}
+        </ToggleGroup>
+        <button
+          onClick={handleRefetch}
+          className="w-10 ml-3 sm:ml-0 h-10 rounded transition 
+             hover:scale-110 active:scale-95"
+        >
+          <RefreshCw
+            className={`w-6 h-6 text-gray-600 dark:text-gray-300 transition-transform duration-300 ${isRefreshing ? "animate-spinOnce" : ""
+              }`}
+          />
+        </button>
+      </div>
       <div className="relative sm:w-full ml-0 sm:ml-auto flex items-center gap-2">
         <Input
           type="text"
@@ -116,10 +148,9 @@ export const FilterBar = ({ mode, setMode }: FilterBarProps) => {
         )}
         <div
           className={`transition-all duration-300 ease-in-out transform 
-            ${
-              showStickySwitcher
-                ? "max-w-[50px] opacity-100 translate-y-0"
-                : "max-w-0 opacity-0 -translate-y-2 overflow-hidden"
+            ${showStickySwitcher
+              ? "max-w-[50px] opacity-100 translate-y-0"
+              : "max-w-0 opacity-0 -translate-y-2 overflow-hidden"
             }`}
         >
           <Switcher />

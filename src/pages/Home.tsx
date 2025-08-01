@@ -16,7 +16,7 @@ const Home = () => {
   const [localData, setLocalData] = useState<Committer[]>([]);
   const search = searchParams.get("search") || "";
 
-  const { data, error, isFetching } = useGetTajikistanUsersQuery(mode, {
+  const { data, error, isFetching, refetch } = useGetTajikistanUsersQuery(mode, {
     refetchOnMountOrArgChange: true,
     refetchOnFocus: true,
     refetchOnReconnect: true,
@@ -63,11 +63,11 @@ const Home = () => {
       <Header />
       {data?.generatedAt && (
         <p className="text-start text-sm text-gray-500 dark:text-gray-400 mb-4">
-          This list was generated at 
+          This list was generated at
           <code className="font-bold"> {data.generatedAt.replace(/\s\+0000\.?$/, "")}</code>.
         </p>
       )}
-      <FilterBar mode={mode} setMode={setMode} />
+      <FilterBar mode={mode} setMode={setMode} refetch={refetch} />
 
       {(isFetching || localData.length === 0) && <LoadingSpinner />}
 
