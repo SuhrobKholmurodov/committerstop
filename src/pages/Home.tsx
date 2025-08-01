@@ -2,16 +2,18 @@ import { useState, useEffect, useMemo } from "react";
 import { useGetTajikistanUsersQuery } from "../api/committersApi";
 import type { Committer, Mode } from "@/types";
 import { Helmet } from "react-helmet-async";
-import { ErrorMessage, LoadingSpinner, UserTable, Switcher, FilterBar } from "@/components/common";
+import { ErrorMessage, LoadingSpinner, UserTable, FilterBar, Header } from "@/components/common";
 import { useSearchParams } from "react-router-dom";
 
 const PAGE_SIZE = 20;
 
 const Home = () => {
-  const [mode, setMode] = useState<Mode>("commits");
+  const [searchParams] = useSearchParams();
+  const initialMode = (searchParams.get("mode") as Mode) || "commits";
+  const [mode, setMode] = useState<Mode>(initialMode);
+
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [localData, setLocalData] = useState<Committer[]>([]);
-  const [searchParams] = useSearchParams();
   const search = searchParams.get("search") || "";
 
   const { data, error, isFetching } = useGetTajikistanUsersQuery(mode, {
@@ -58,14 +60,7 @@ const Home = () => {
       <Helmet>
         <title>Most active GitHub users in Tajikistan</title>
       </Helmet>
-
-      <div id="header-section" className="flex items-center justify-between mb-4">
-        <h1 className="text-3xl font-bold sm:text-[18px] dark:text-gray-50 sm:text-center">
-          Active GitHub Users in Tajikistan
-        </h1>
-        <Switcher />
-      </div>
-
+      <Header />
       <FilterBar mode={mode} setMode={setMode} />
 
       {(isFetching || localData.length === 0) && <LoadingSpinner />}
