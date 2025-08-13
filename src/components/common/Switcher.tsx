@@ -1,6 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Sun, Moon } from "lucide-react";
-import { useDarkSide } from "@/hooks/useDarkSide";
 import {
   Tooltip,
   TooltipContent,
@@ -9,12 +8,34 @@ import {
 } from "@/components/ui/tooltip";
 
 export const Switcher = () => {
-  const [colorTheme, setTheme] = useDarkSide();
-  const [dark, setDark] = useState(colorTheme === "light");
+  const getThemeFromStorage = () => {
+    const stored = localStorage.getItem('theme');
+    return stored === 'dark' ? 'dark' : 'light';
+  };
+
+  const [theme, setTheme] = useState(getThemeFromStorage);
+  const isDark = theme === 'dark';
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const currentTheme = getThemeFromStorage();
+      if (currentTheme !== theme) {
+        setTheme(currentTheme);
+      }
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, [theme]);
+
+  useEffect(() => {
+    document.documentElement.classList.remove('light', 'dark');
+    document.documentElement.classList.add(theme);
+  }, [theme]);
 
   const toggle = () => {
-    setTheme(dark ? "light" : "dark");
-    setDark(!dark);
+    const newTheme = isDark ? 'light' : 'dark';
+    localStorage.setItem('theme', newTheme);
+    setTheme(newTheme);
   };
 
   return (
@@ -25,7 +46,7 @@ export const Switcher = () => {
             onClick={toggle}
             className="flex items-center justify-center w-10 h-10 rounded-lg cursor-pointer transition-transform duration-300 hover:scale-110"
           >
-            {dark ? (
+            {isDark ? (
               <Moon size={28} className="text-gray-300 transition-transform duration-500" />
             ) : (
               <Sun size={28} className="text-yellow-400 transition-transform duration-500" />
@@ -33,7 +54,7 @@ export const Switcher = () => {
           </div>
         </TooltipTrigger>
         <TooltipContent>
-          {dark ? "Switch to Light" : "Switch to Dark"}
+          {isDark ? "Switch to Light" : "Switch to Dark"}
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
