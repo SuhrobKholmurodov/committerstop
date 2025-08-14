@@ -6,3 +6,4 @@ export * from "./Switcher";
 export * from "./Header";
 export * from "./FilterBar";
 export * from "./Toast";
+export * from "./Footer";
