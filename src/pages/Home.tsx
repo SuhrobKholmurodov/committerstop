@@ -14,7 +14,7 @@ import { useSearchParams } from "react-router-dom";
 const PAGE_SIZE = 20;
 
 const Home = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const initialMode = (searchParams.get("mode") as Mode) || "commits";
   const [mode, setMode] = useState<Mode>(initialMode);
 
@@ -34,13 +34,6 @@ const Home = () => {
       refetchOnReconnect: true,
     }
   );
-
-  useEffect(() => {
-    const newParams = new URLSearchParams(searchParams);
-    newParams.set("mode", mode);
-    newParams.set("sort", sortBy);
-    setSearchParams(newParams);
-  }, [mode, sortBy]);
 
   useEffect(() => {
     const fetchUserStats = async () => {

@@ -38,7 +38,7 @@ export const FilterBar = ({
   const urlSort = searchParams.get("sort") as SortOption;
   useEffect(() => {
     if (urlSort && urlSort !== sortBy) setSortBy(urlSort);
-  }, [urlSort]);
+  }, [urlSort, sortBy, setSortBy]);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -75,14 +75,8 @@ export const FilterBar = ({
     else newParams.set("mode", newMode);
 
     setSearchParams(newParams);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
-
-  useEffect(() => {
-    const newParams = new URLSearchParams(searchParams);
-    newParams.set("mode", mode);
-    newParams.set("sort", sortBy);
-    setSearchParams(newParams);
-  }, [mode, sortBy]);
 
   const handleClearSearch = () => setInputValue("");
 
@@ -145,7 +139,15 @@ export const FilterBar = ({
         </button>
       </div>
       <div className="flex sm:flex-col sm:w-full items-center gap-2">
-        <Select value={sortBy} onValueChange={setSortBy}>
+        <Select
+          value={sortBy}
+          onValueChange={(val) => {
+            setSortBy(val as SortOption);
+            const newParams = new URLSearchParams(searchParams);
+            newParams.set("sort", val);
+            setSearchParams(newParams);
+          }}
+        >
           <SelectTrigger className="py-5 h-[42px] sm:w-full text-black dark:text-white border-gray-300 dark:border-gray-700 bg-white/90 dark:bg-gray-900">
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
