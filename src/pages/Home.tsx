@@ -10,13 +10,6 @@ import {
   Header,
 } from "@/components/common";
 import { useSearchParams } from "react-router-dom";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
 
 const PAGE_SIZE = 20;
 
@@ -129,30 +122,14 @@ const Home = () => {
           .
         </p>
       )}
-      <FilterBar mode={mode} setMode={setMode} refetch={refetch} />
-      <div className="my-4 w-48">
-        <Select
-          value={sortBy}
-          onValueChange={(value: SortOption) => setSortBy(value)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Sort by" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="commits-desc">Commits (High → Low)</SelectItem>
-            <SelectItem value="commits-asc">Commits (Low → High)</SelectItem>
-            <SelectItem value="alphabetical-asc">
-              Alphabetical (A → Z)
-            </SelectItem>
-            <SelectItem value="alphabetical-desc">
-              Alphabetical (Z → A)
-            </SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
+      <FilterBar
+        mode={mode}
+        setMode={setMode}
+        refetch={refetch}
+        sortBy={sortBy}
+        setSortBy={setSortBy}
+      />
       {(isFetching || localData.length === 0) && <LoadingSpinner />}
-
       {error && (
         <ErrorMessage
           title="Error loading data"

@@ -1,9 +1,16 @@
 import { useState, useEffect } from "react";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 import { RefreshCw, Search, X } from "lucide-react";
 import { Toast, Switcher } from "@/components/common";
-import type { Mode } from "@/types";
+import type { Mode, SortOption } from "@/types";
 import { useSearchParams } from "react-router-dom";
 
 interface FilterBarProps {
@@ -11,9 +18,17 @@ interface FilterBarProps {
   setMode: (mode: Mode) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   refetch: () => Promise<any>;
+  sortBy: SortOption;
+  setSortBy: (val: SortOption) => void;
 }
 
-export const FilterBar = ({ mode, setMode, refetch }: FilterBarProps) => {
+export const FilterBar = ({
+  mode,
+  setMode,
+  refetch,
+  sortBy,
+  setSortBy,
+}: FilterBarProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const urlSearch = searchParams.get("search") || "";
   const [inputValue, setInputValue] = useState(urlSearch);
@@ -77,7 +92,6 @@ export const FilterBar = ({ mode, setMode, refetch }: FilterBarProps) => {
     }
   };
 
-
   return (
     <div className="mb-6 py-2 sticky top-0 z-20 flex sm:flex-col flex-row items-center w-full justify-between sm:gap-4 backdrop-blur-lg rounded-md">
       <div className="flex items-center gap-2 sm:gap-4 sm:w-full">
@@ -101,8 +115,8 @@ export const FilterBar = ({ mode, setMode, refetch }: FilterBarProps) => {
               {value === "commits"
                 ? "Commits"
                 : value === "contributions"
-                  ? "Contributions"
-                  : "All"}
+                ? "Contributions"
+                : "All"}
             </ToggleGroupItem>
           ))}
         </ToggleGroup>
@@ -112,18 +126,45 @@ export const FilterBar = ({ mode, setMode, refetch }: FilterBarProps) => {
              hover:scale-110 active:scale-95"
         >
           <RefreshCw
-            className={`w-6 h-6 text-gray-600 dark:text-gray-300 transition-transform duration-300 ${isRefreshing ? "animate-spinOnce" : ""
-              }`}
+            className={`w-6 h-6 text-gray-600 dark:text-gray-300 transition-transform duration-300 ${
+              isRefreshing ? "animate-spinOnce" : ""
+            }`}
           />
         </button>
       </div>
-      <div className="relative sm:w-full ml-0 sm:ml-auto flex items-center gap-2">
-        <Input
-          type="text"
-          placeholder="Search by username..."
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          className="h-[42px] px-10 py-4 sm:py-5 border-2 border-gray-300 dark:border-gray-700 
+      <div className="flex items-center gap-2">
+        <Select value={sortBy} onValueChange={setSortBy}>
+          <SelectTrigger className="py-5 h-[42px] text-gray-600 border-gray-300 dark:border-gray-700 bg-white/90 dark:bg-gray-900/90">
+            <SelectValue placeholder="Sort by" />
+          </SelectTrigger>
+          <SelectContent className="bg-white/90 text-gray-700 dark:bg-gray-900/90">
+            <SelectItem className="hover:cursor-pointer" value="commits-desc">
+              Commits (High → Low)
+            </SelectItem>
+            <SelectItem className="hover:cursor-pointer" value="commits-asc">
+              Commits (Low → High)
+            </SelectItem>
+            <SelectItem
+              className="hover:cursor-pointer"
+              value="alphabetical-asc"
+            >
+              Alphabetical (A → Z)
+            </SelectItem>
+            <SelectItem
+              className="hover:cursor-pointer"
+              value="alphabetical-desc"
+            >
+              Alphabetical (Z → A)
+            </SelectItem>
+          </SelectContent>
+        </Select>
+        <div className="relative sm:w-full ml-0 sm:ml-auto flex items-center gap-2">
+          <Input
+            type="text"
+            placeholder="Search by username..."
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            className="h-[42px] px-10 py-4 sm:py-5 border border-gray-300 dark:border-gray-700 
             rounded-lg shadow-sm
             focus:border-blue-500 focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50
             hover:border-blue-400 hover:shadow-lg
@@ -134,26 +175,28 @@ export const FilterBar = ({ mode, setMode, refetch }: FilterBarProps) => {
             placeholder-gray-400 dark:placeholder-gray-500
             text-gray-800 dark:text-gray-200
             outline-none"
-        />
-        <Search
-          size={20}
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
-        />
-        {inputValue && (
-          <X
-            size={18}
-            onClick={handleClearSearch}
-            className="absolute right-12 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer hover:text-red-500 transition-colors hover:scale-110"
           />
-        )}
-        <div
-          className={`transition-all duration-300 ease-in-out transform 
-            ${showStickySwitcher
-              ? "max-w-[50px] opacity-100 translate-y-0"
-              : "max-w-0 opacity-0 -translate-y-2 overflow-hidden"
+          <Search
+            size={20}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+          />
+          {inputValue && (
+            <X
+              size={18}
+              onClick={handleClearSearch}
+              className="absolute right-12 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer hover:text-red-500 transition-colors hover:scale-110"
+            />
+          )}
+          <div
+            className={`transition-all duration-300 ease-in-out transform 
+            ${
+              showStickySwitcher
+                ? "max-w-[50px] opacity-100 translate-y-0"
+                : "max-w-0 opacity-0 -translate-y-2 overflow-hidden"
             }`}
-        >
-          <Switcher />
+          >
+            <Switcher />
+          </div>
         </div>
       </div>
     </div>
