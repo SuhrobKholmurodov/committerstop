@@ -2,9 +2,9 @@ import { Github } from "lucide-react";
 
 export const Footer = () => {
   return (
-    <footer className="w-full bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 py-3 mt-8">
-      <div className="container mx-auto px-4 text-center text-sm flex justify-center items-center gap-2">
-        <p> 
+    <footer className="mt-auto w-full bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 py-3">
+      <div className="container mx-auto px-4 text-center text-sm flex sm:flex-col justify-center items-center gap-2">
+        <p>
           © {new Date().getFullYear()} CommittersTop TJ. Built with ❤️ by{" "}
           <a
             href="https://github.com/SuhrobKholmurodov"

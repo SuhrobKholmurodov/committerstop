@@ -18,3 +18,9 @@ export interface GitHubUser {
   public_repos: number;
   html_url: string;
 }
+
+export type SortOption =
+  | "alphabetical-asc"
+  | "alphabetical-desc"
+  | "commits-desc"
+  | "commits-asc";
