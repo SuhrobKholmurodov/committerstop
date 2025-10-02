@@ -14,10 +14,13 @@ import { useSearchParams } from "react-router-dom";
 const PAGE_SIZE = 20;
 
 const Home = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const initialMode = (searchParams.get("mode") as Mode) || "commits";
   const [mode, setMode] = useState<Mode>(initialMode);
-  const [sortBy, setSortBy] = useState<SortOption>("commits-desc");
+
+  const initialSort =
+    (searchParams.get("sort") as SortOption) || "commits-desc";
+  const [sortBy, setSortBy] = useState<SortOption>(initialSort);
 
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [localData, setLocalData] = useState<Committer[]>([]);
@@ -31,6 +34,13 @@ const Home = () => {
       refetchOnReconnect: true,
     }
   );
+
+  useEffect(() => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set("mode", mode);
+    newParams.set("sort", sortBy);
+    setSearchParams(newParams);
+  }, [mode, sortBy]);
 
   useEffect(() => {
     const fetchUserStats = async () => {
@@ -50,7 +60,6 @@ const Home = () => {
 
   useEffect(() => {
     setLocalData([]);
-    setSortBy("commits-desc");
   }, [mode]);
 
   useEffect(() => {

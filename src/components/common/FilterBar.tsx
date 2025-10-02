@@ -35,6 +35,11 @@ export const FilterBar = ({
   const [showStickySwitcher, setShowStickySwitcher] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
+  const urlSort = searchParams.get("sort") as SortOption;
+  useEffect(() => {
+    if (urlSort && urlSort !== sortBy) setSortBy(urlSort);
+  }, [urlSort]);
+
   useEffect(() => {
     const handler = setTimeout(() => {
       const newParams = new URLSearchParams(searchParams);
@@ -71,6 +76,13 @@ export const FilterBar = ({
 
     setSearchParams(newParams);
   };
+
+  useEffect(() => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set("mode", mode);
+    newParams.set("sort", sortBy);
+    setSearchParams(newParams);
+  }, [mode, sortBy]);
 
   const handleClearSearch = () => setInputValue("");
 
@@ -134,10 +146,10 @@ export const FilterBar = ({
       </div>
       <div className="flex sm:flex-col sm:w-full items-center gap-2">
         <Select value={sortBy} onValueChange={setSortBy}>
-          <SelectTrigger className="py-5 h-[42px] sm:w-full text-gray-600 border-gray-300 dark:border-gray-700 bg-white/90 dark:bg-gray-900/90">
+          <SelectTrigger className="py-5 h-[42px] sm:w-full text-black dark:text-white border-gray-300 dark:border-gray-700 bg-white/90 dark:bg-gray-900">
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
-          <SelectContent className="bg-white/90 text-gray-700 dark:bg-gray-900/90">
+          <SelectContent className="bg-white/90 text-black dark:text-white dark:bg-gray-900/90">
             <SelectItem className="hover:cursor-pointer" value="commits-desc">
               Commits (High → Low)
             </SelectItem>
