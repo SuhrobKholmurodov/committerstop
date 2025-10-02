@@ -90,6 +90,7 @@ const Home = () => {
 
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, [mode, search, sortBy]);
 
   useEffect(() => {

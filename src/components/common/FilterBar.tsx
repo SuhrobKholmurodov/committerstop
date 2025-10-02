@@ -132,9 +132,9 @@ export const FilterBar = ({
           />
         </button>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex sm:flex-col sm:w-full items-center gap-2">
         <Select value={sortBy} onValueChange={setSortBy}>
-          <SelectTrigger className="py-5 h-[42px] text-gray-600 border-gray-300 dark:border-gray-700 bg-white/90 dark:bg-gray-900/90">
+          <SelectTrigger className="py-5 h-[42px] sm:w-full text-gray-600 border-gray-300 dark:border-gray-700 bg-white/90 dark:bg-gray-900/90">
             <SelectValue placeholder="Sort by" />
           </SelectTrigger>
           <SelectContent className="bg-white/90 text-gray-700 dark:bg-gray-900/90">
@@ -158,7 +158,7 @@ export const FilterBar = ({
             </SelectItem>
           </SelectContent>
         </Select>
-        <div className="relative sm:w-full ml-0 sm:ml-auto flex items-center gap-2">
+        <div className="relative sm:w-full ml-0 sm:ml-auto flex items-center gap-1 sm:gap-0">
           <Input
             type="text"
             placeholder="Search by username..."
