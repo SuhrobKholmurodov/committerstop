@@ -5,6 +5,11 @@ export interface VerifyGistResponse {
   gistUrl?: string;
 }
 
+interface GitHubGist {
+  description: string | null;
+  html_url: string;
+}
+
 export const verifyGistApi = createApi({
   reducerPath: "verifyGistApi",
   baseQuery: fetchBaseQuery({
@@ -16,18 +21,21 @@ export const verifyGistApi = createApi({
       { username: string; token: string }
     >({
       query: ({ username }) => `users/${username}/gists`,
-      transformResponse: (response: any, meta, { username, token }) => {
+      transformResponse: (response: GitHubGist[], _, arg) => {
+        const { username, token } = arg;
+
         const found = response.find(
-          (gist: any) => gist.description && gist.description.includes(token)
+          (gist) => gist.description && gist.description.includes(token)
         );
 
         if (found) {
-          const verifiedUsers = JSON.parse(
-            localStorage.getItem("verifiedUsers") || "[]"
-          );
-          const exists = verifiedUsers.some(
-            (u: any) => u.username === username
-          );
+          const verifiedUsers: {
+            username: string;
+            gistUrl: string;
+            rank: string;
+          }[] = JSON.parse(localStorage.getItem("verifiedUsers") || "[]");
+
+          const exists = verifiedUsers.some((u) => u.username === username);
 
           if (!exists) {
             verifiedUsers.push({
