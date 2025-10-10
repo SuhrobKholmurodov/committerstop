@@ -195,7 +195,7 @@ export const UserDialog = ({
 
                 {isGloballyVerified && (
                   <p className="text-sm text-green-600 mt-2">
-                    ✅ Аккаунт верифицирован публично. Gist:{" "}
+                    ✅ Аккаунт верифицирован публично.
                   </p>
                 )}
               </div>
@@ -212,11 +212,13 @@ export const UserDialog = ({
         <UserVerification
           username={user.username}
           userRank={user.rank}
+          lastRank={undefined}
           open={verificationOpen}
           onOpenChange={setVerificationOpen}
           onVerified={() => {
             onVerified(user);
             setVerificationOpen(false);
+            onOpenChange(false);
           }}
         />
       )}

@@ -9,7 +9,10 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { CheckCircle } from "lucide-react";
-import { useVerifyUserGistQuery } from "@/api/verifyGistApi";
+import {
+  useVerifyUserGistQuery,
+  type VerifyGistResponse,
+} from "@/api/verifyGistApi";
 
 interface Props {
   username: string;
@@ -36,8 +39,21 @@ export default function UserVerificationDialog({
   );
 
   const handleVerify = async () => {
-    await refetch();
-    if (data?.verified && onVerified) onVerified();
+    try {
+      const res = await refetch();
+      let verified = Boolean(data?.verified);
+
+      if (res && typeof res === "object" && "data" in res) {
+        const response = (res as { data?: VerifyGistResponse }).data;
+        if (response?.verified) verified = true;
+      }
+      if (verified) {
+        onVerified?.();
+        onOpenChange(false);
+      }
+    } catch (err) {
+      console.error("Verification refetch failed:", err);
+    }
   };
 
   return (
