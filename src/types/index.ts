@@ -5,6 +5,7 @@ export interface Committer {
   profile: string;
   commits: number;
   avatar: string;
+  rankMessage?: string;
 }
 export type Mode = "commits" | "contributions" | "all";
 export interface GitHubUser {

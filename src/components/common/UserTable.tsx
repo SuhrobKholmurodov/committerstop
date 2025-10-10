@@ -8,18 +8,25 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { Committer } from "@/types";
-import { UserDialog } from "./UserDialog";
+import { UserDialog, type VerifiedUser } from "./UserDialog";
+import { CheckCircle } from "lucide-react";
 
 interface UserTableProps {
   users: Committer[];
+  onUserVerified: (user: Committer) => void;
+  verifiedUsers: VerifiedUser[];
 }
 
-export const UserTable = ({ users }: UserTableProps) => {
-  const [selectedUser, setSelectedUser] = useState<string | null>(null);
+export const UserTable = ({
+  users,
+  onUserVerified,
+  verifiedUsers,
+}: UserTableProps) => {
+  const [selectedUser, setSelectedUser] = useState<Committer | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const openDialog = (username: string) => {
-    setSelectedUser(username);
+  const openDialog = (user: Committer) => {
+    setSelectedUser(user);
     setDialogOpen(true);
   };
 
@@ -53,10 +60,18 @@ export const UserTable = ({ users }: UserTableProps) => {
                 <TableCell>
                   <button
                     className="text-blue-500 hover:underline cursor-pointer bg-transparent border-none p-0"
-                    onClick={() => openDialog(user.username)}
+                    onClick={() => openDialog(user)}
                   >
                     {user.username}
                   </button>
+
+                  {verifiedUsers.some((u) => u.username === user.username) && (
+                    <CheckCircle
+                      className="inline text-green-600 ml-1"
+                      size={16}
+                    />
+                  )}
+
                   <br />
                   <span className="text-sm text-gray-500 ml-1">
                     {user.realname && user.realname.length > 0
@@ -80,10 +95,11 @@ export const UserTable = ({ users }: UserTableProps) => {
 
       {selectedUser && (
         <UserDialog
-          username={selectedUser}
+          user={selectedUser}
           open={dialogOpen}
-          key={selectedUser}
+          key={selectedUser.username}
           onOpenChange={setDialogOpen}
+          onVerified={onUserVerified}
         />
       )}
     </>

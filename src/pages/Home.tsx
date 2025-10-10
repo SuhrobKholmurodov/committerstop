@@ -8,8 +8,10 @@ import {
   UserTable,
   FilterBar,
   Header,
+  type VerifiedUser,
 } from "@/components/common";
 import { useSearchParams } from "react-router-dom";
+import { CheckCircle } from "lucide-react";
 
 const PAGE_SIZE = 20;
 
@@ -21,6 +23,43 @@ const Home = () => {
   const initialSort =
     (searchParams.get("sort") as SortOption) || "commits-desc";
   const [sortBy, setSortBy] = useState<SortOption>(initialSort);
+
+  const [verifiedUsers, setVerifiedUsers] = useState<VerifiedUser[]>([]);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("verifiedUsers");
+    if (stored) {
+      setVerifiedUsers(JSON.parse(stored));
+    }
+  }, []);
+
+  const handleUserVerified = (user: Committer) => {
+    setVerifiedUsers((prev) => {
+      if (prev.find((u) => u.username === user.username)) return prev;
+
+      const currentRank =
+        sortedAndFilteredUsers.findIndex((u) => u.username === user.username) +
+        1;
+
+      let rankMessage = "";
+      if (currentRank) {
+        rankMessage = "Ваша позиция не изменилась.";
+      }
+
+      const updated: VerifiedUser[] = [
+        ...prev,
+        {
+          username: user.username,
+          gistUrl: "",
+          rank: currentRank.toString(),
+          rankMessage,
+        },
+      ];
+
+      localStorage.setItem("verifiedUsers", JSON.stringify(updated));
+      return updated;
+    });
+  };
 
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [localData, setLocalData] = useState<Committer[]>([]);
@@ -35,41 +74,19 @@ const Home = () => {
     }
   );
 
-  useEffect(() => {
-    const fetchUserStats = async () => {
-      if (!localData.length) return;
-
-      const stats: Record<string, { followers: number; repos: number }> = {};
-      for (const user of localData) {
-        stats[user.username] = {
-          followers: 0,
-          repos: 0,
-        };
-      }
-    };
-
-    fetchUserStats();
-  }, [localData]);
-
-  useEffect(() => {
-    setLocalData([]);
-  }, [mode]);
-
+  useEffect(() => setLocalData([]), [mode]);
   useEffect(() => {
     if (data?.users) setLocalData(data.users);
   }, [data]);
 
   const sortedAndFilteredUsers = useMemo(() => {
     if (!localData) return [];
-
     let users = [...localData];
-
     if (search.trim()) {
-      users = users.filter((user) =>
-        user.username.toLowerCase().includes(search.toLowerCase())
+      users = users.filter((u) =>
+        u.username.toLowerCase().includes(search.toLowerCase())
       );
     }
-
     switch (sortBy) {
       case "alphabetical-asc":
         users.sort((a, b) => a.username.localeCompare(b.username));
@@ -77,16 +94,13 @@ const Home = () => {
       case "alphabetical-desc":
         users.sort((a, b) => b.username.localeCompare(a.username));
         break;
-      case "commits-desc":
-        users.sort((a, b) => b.commits - a.commits);
-        break;
       case "commits-asc":
         users.sort((a, b) => a.commits - b.commits);
         break;
+      case "commits-desc":
       default:
         users.sort((a, b) => b.commits - a.commits);
     }
-
     return users;
   }, [localData, search, sortBy]);
 
@@ -115,16 +129,37 @@ const Home = () => {
         <title>Most active GitHub users in Tajikistan</title>
       </Helmet>
       <Header />
+
       {data?.generatedAt && (
         <p className="text-start text-sm text-gray-500 dark:text-gray-400 mb-4">
-          This list was generated at
+          This list was generated at{" "}
           <code className="font-bold">
-            {" "}
             {data.generatedAt.replace(/\s\+0000\.?$/, "")}
           </code>
           .
         </p>
       )}
+
+      {verifiedUsers.length > 0 && (
+        <div className="mb-4 space-y-3 bg-green-50 dark:bg-green-900/30 p-4 rounded-md border border-green-300 dark:border-green-700">
+          {verifiedUsers.map((user) => (
+            <div
+              key={user.username}
+              className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
+            >
+              <p className="text-green-700 dark:text-green-300 flex items-center gap-1 font-medium">
+                <CheckCircle size={18} /> {user.username} — Verified
+              </p>
+              {user.rankMessage && (
+                <p className="text-gray-700 dark:text-gray-300 italic text-sm">
+                  {user.rankMessage}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
       <FilterBar
         mode={mode}
         setMode={setMode}
@@ -132,6 +167,7 @@ const Home = () => {
         sortBy={sortBy}
         setSortBy={setSortBy}
       />
+
       {(isFetching || localData.length === 0) && <LoadingSpinner />}
       {error && (
         <ErrorMessage
@@ -149,7 +185,12 @@ const Home = () => {
 
       {!error && sortedAndFilteredUsers.length > 0 && !isFetching && (
         <>
-          <UserTable users={sortedAndFilteredUsers.slice(0, visibleCount)} />
+          <UserTable
+            users={sortedAndFilteredUsers.slice(0, visibleCount)}
+            onUserVerified={handleUserVerified}
+            verifiedUsers={verifiedUsers}
+          />
+
           {visibleCount < sortedAndFilteredUsers.length && (
             <div className="flex justify-center my-4">
               <LoadingSpinner />

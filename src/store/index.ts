@@ -1,16 +1,19 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { committersApi } from "../api/committersApi";
 import { githubApi } from "../api/githubApi";
+import { verifyGistApi } from "@/api/verifyGistApi";
 
 export const store = configureStore({
   reducer: {
     [committersApi.reducerPath]: committersApi.reducer,
     [githubApi.reducerPath]: githubApi.reducer,
+    [verifyGistApi.reducerPath]: verifyGistApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
       .concat(committersApi.middleware)
-      .concat(githubApi.middleware),
+      .concat(githubApi.middleware)
+      .concat(verifyGistApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;
