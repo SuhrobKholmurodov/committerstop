@@ -29,46 +29,18 @@ export const verifyGistApi = createApi({
     >({
       query: ({ username }) => `users/${username}/gists`,
       transformResponse: (response: GitHubGist[], _, arg) => {
+        console.log(
+          "all gist:",
+          response.map((g) => g.description)
+        );
         const { username, token } = arg;
 
-        if (token) {
-          const foundByToken = response.find(
-            (gist) => gist.description && gist.description.includes(token)
-          );
-          if (foundByToken) {
-            const verifiedUsers: {
-              username: string;
-              gistUrl: string;
-              rank: string;
-            }[] = JSON.parse(localStorage.getItem("verifiedUsers") || "[]");
-
-            const exists = verifiedUsers.some((u) => u.username === username);
-
-            if (!exists) {
-              verifiedUsers.push({
-                username,
-                gistUrl: foundByToken.html_url,
-                rank: "Contributor",
-              });
-              localStorage.setItem(
-                "verifiedUsers",
-                JSON.stringify(verifiedUsers)
-              );
-            }
-
-            return { verified: true, gistUrl: foundByToken.html_url };
-          }
-
-          return { verified: false };
-        }
-
-        const foundAny = response.find(
-          (gist) =>
-            gist.description &&
-            /commiters?-tj-verify-[0-9a-zA-Z]+/i.test(gist.description)
+        const found = response.find(
+          (gist) => gist.description && gist.description.includes(token!)
         );
 
-        if (foundAny) {
+        console.log("founded gist:", found);
+        if (found) {
           const verifiedUsers: {
             username: string;
             gistUrl: string;
@@ -80,7 +52,7 @@ export const verifyGistApi = createApi({
           if (!exists) {
             verifiedUsers.push({
               username,
-              gistUrl: foundAny.html_url,
+              gistUrl: found.html_url,
               rank: "Contributor",
             });
             localStorage.setItem(
@@ -89,7 +61,7 @@ export const verifyGistApi = createApi({
             );
           }
 
-          return { verified: true, gistUrl: foundAny.html_url };
+          return { verified: true, gistUrl: found.html_url };
         }
 
         return { verified: false };

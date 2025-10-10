@@ -1,97 +1,125 @@
-import { useState } from "react";
+import { useVerifyUserGistQuery } from "@/api/verifyGistApi";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
-  DialogFooter,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { CheckCircle } from "lucide-react";
-import {
-  useVerifyUserGistQuery,
-  type VerifyGistResponse,
-} from "@/api/verifyGistApi";
+import { useState, useEffect } from "react";
+import { Button } from "../ui/button";
+import { generateToken } from "@/utils";
 
-interface Props {
+interface UserVerificationDialogProps {
   username: string;
+  userRank?: number;
+  lastRank?: number;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onVerified?: () => void;
-}
-
-function generateToken() {
-  return `commiters-tj-verify-${Math.random().toString(36).slice(2, 10)}`;
+  onVerified: () => void;
 }
 
 export default function UserVerificationDialog({
   username,
+  userRank,
+  lastRank,
   open,
   onOpenChange,
   onVerified,
-}: Props) {
-  const [token] = useState(generateToken);
+}: UserVerificationDialogProps) {
+  const [token, setToken] = useState(generateToken);
+  const [timeLeft, setTimeLeft] = useState(300);
+
+  useEffect(() => {
+    if (timeLeft > 0) {
+      const timer = setTimeout(() => setTimeLeft((prev) => prev - 1), 1000);
+      return () => clearTimeout(timer);
+    } else {
+      setToken(generateToken());
+      setTimeLeft(300);
+    }
+  }, [timeLeft]);
+
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, "0")}`;
+  };
 
   const { data, isFetching, refetch, error } = useVerifyUserGistQuery(
     { username, token },
-    { skip: !open }
+    { skip: !username || !open }
   );
 
-  const handleVerify = async () => {
-    try {
-      const res = await refetch();
-      let verified = Boolean(data?.verified);
+  let rankMessage = "";
+  if (userRank && lastRank) {
+    if (userRank > lastRank)
+      rankMessage = `You dropped ${userRank - lastRank} place(s).`;
+    else if (userRank < lastRank)
+      rankMessage = `You rose ${lastRank - userRank} place(s).`;
+    else rankMessage = "Your position has not changed.";
+  }
 
-      if (res && typeof res === "object" && "data" in res) {
-        const response = (res as { data?: VerifyGistResponse }).data;
-        if (response?.verified) verified = true;
-      }
-      if (verified) {
-        onVerified?.();
-        onOpenChange(false);
-      }
-    } catch (err) {
-      console.error("Verification refetch failed:", err);
-    }
-  };
+  if (data?.verified) onVerified();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md sm:max-w-[360px] rounded-md">
+      <DialogContent className="max-w-[360px] rounded-md">
         <DialogHeader>
-          <DialogTitle>Verify GitHub account: {username}</DialogTitle>
+          <DialogTitle>User Verification</DialogTitle>
         </DialogHeader>
-        <DialogDescription className="mt-4 space-y-3">
-          <p>
-            Сгенерированный токен: <code className="font-bold">{token}</code>
-          </p>
-          <p>
-            Создайте <strong>публичный Gist</strong> с этим токеном в описании.
-            После этого нажмите кнопку "Проверить".
-          </p>
-          {isFetching && <p>Проверка...</p>}
-          {error && (
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            <p className="text-red-500">Ошибка: {(error as any).data}</p>
-          )}
-          {data?.verified && (
-            <p className="text-green-600 flex items-center gap-1">
-              Verified <CheckCircle size={18} />
-            </p>
-          )}
-        </DialogDescription>
-        <DialogFooter className="pt-4">
-          <Button
-            onClick={handleVerify}
-            disabled={isFetching || data?.verified}
+
+        <div className="text-sm text-gray-700 dark:text-gray-300 mb-1 flex items-center justify-between">
+          <span>Your token:</span>
+          <span
+            className={`font-mono text-xs px-2 py-1 rounded-md ${
+              timeLeft < 60
+                ? "text-red-500"
+                : "text-blue-500 dark:text-blue-400"
+            } transition-colors`}
           >
-            Проверить
+            refreshes in {formatTime(timeLeft)}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-2 bg-gray-100 dark:bg-gray-800 px-3 py-2 rounded-lg mb-3">
+          <code className="font-mono font-bold text-blue-600 dark:text-blue-400 break-all flex-1">
+            {token}
+          </code>
+        </div>
+
+        <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+          Create a <strong>public Gist</strong> with this token in the
+          description and click "Verify".
+        </p>
+
+        <div className="flex gap-2">
+          <Button
+            className="bg-blue-600 text-white"
+            onClick={() => refetch()}
+            disabled={isFetching}
+          >
+            Verify
           </Button>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Close
           </Button>
-        </DialogFooter>
+        </div>
+
+        {isFetching && <p className="text-sm mt-2">Verifying...</p>}
+        {error && (
+          <p className="text-sm mt-2 text-red-500">
+            Error: {(error as { data?: string }).data}
+          </p>
+        )}
+        {data?.verified && (
+          <p className="text-sm mt-2 text-green-600">✅ Account verified!</p>
+        )}
+
+        {rankMessage && (
+          <p className="text-sm mt-2 text-gray-700 dark:text-gray-300">
+            {rankMessage}
+          </p>
+        )}
       </DialogContent>
     </Dialog>
   );

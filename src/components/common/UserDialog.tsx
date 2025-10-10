@@ -13,8 +13,8 @@ import { ArrowUpRight } from "lucide-react";
 import { LoadingSpinner } from "./LoadingSpinner";
 import { ErrorMessage } from "./ErrorMessage";
 import { useEffect, useState } from "react";
-import UserVerification from "./UserVerification";
 import type { Committer } from "@/types";
+import UserVerificationDialog from "./UserVerificationDialog";
 
 interface UserDialogProps {
   user: Committer;
@@ -54,6 +54,7 @@ export const UserDialog = ({
   const [verificationOpen, setVerificationOpen] = useState(false);
   const [verifiedUsers, setVerifiedUsers] = useState<VerifiedUser[]>([]);
 
+  console.log("erssdsd", verifiedUsers);
   useEffect(() => {
     const stored = localStorage.getItem("verifiedUsers");
     if (stored) {
@@ -91,6 +92,9 @@ export const UserDialog = ({
   const hasAnyLocallyVerified = verifiedUsers.length > 0;
   const isGloballyVerified = Boolean(verificationData?.verified);
   const showVerifyButton = !hasAnyLocallyVerified && !isGloballyVerified;
+  const isVerified =
+    isGloballyVerified ||
+    verifiedUsers.some((u) => u.username === user.username);
 
   return (
     <>
@@ -176,26 +180,26 @@ export const UserDialog = ({
 
                 {isCheckingVerification && (
                   <p className="text-sm text-gray-500">
-                    Проверка статуса верификации...
+                    Checking verification status...
                   </p>
                 )}
                 {verificationError && (
                   <p className="text-sm text-red-500">
-                    Ошибка проверки верификации
+                    Verification check failed
                   </p>
                 )}
 
                 {showVerifyButton && (
                   <div className="flex justify-center mt-4">
                     <Button onClick={() => setVerificationOpen(true)}>
-                      Это я
+                      It's me
                     </Button>
                   </div>
                 )}
 
-                {isGloballyVerified && (
+                {isVerified && (
                   <p className="text-sm text-green-600 mt-2">
-                    ✅ Аккаунт верифицирован публично.
+                    ✅ Account is verified.
                   </p>
                 )}
               </div>
@@ -209,7 +213,7 @@ export const UserDialog = ({
       </Dialog>
 
       {user && (
-        <UserVerification
+        <UserVerificationDialog
           username={user.username}
           userRank={user.rank}
           lastRank={undefined}
