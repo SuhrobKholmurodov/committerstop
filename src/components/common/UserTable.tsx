@@ -58,7 +58,7 @@ export const UserTable = ({
                   key={user.username}
                   className={`transition-all duration-200 ${
                     verified
-                      ? "bg-gradient-to-r from-emerald-500/10 to-teal-100/10 dark:from-emerald-950/30 dark:to-teal-950/30 border-l-4 border-l-emerald-500 border-r border-r-transparent"
+                      ? "bg-gradient-to-r from-emerald-500/10 to-teal-100/10 dark:from-emerald-950/90 dark:to-teal-950/30 border-l-4 border-l-emerald-500 border-r border-r-transparent"
                       : "hover:bg-gray-100 dark:hover:bg-gray-800"
                   }`}
                 >
