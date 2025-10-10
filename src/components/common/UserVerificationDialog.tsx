@@ -56,6 +56,7 @@ export default function UserVerificationDialog({
           </p>
           {isFetching && <p>Проверка...</p>}
           {error && (
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             <p className="text-red-500">Ошибка: {(error as any).data}</p>
           )}
           {data?.verified && (

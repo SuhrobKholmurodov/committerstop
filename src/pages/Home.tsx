@@ -33,7 +33,7 @@ const Home = () => {
     }
   }, []);
 
-  const handleUserVerified = (user: Committer) => {
+  const handleUserVerified = (user: Committer, gistUrl = "") => {
     setVerifiedUsers((prev) => {
       if (prev.find((u) => u.username === user.username)) return prev;
 
@@ -50,7 +50,7 @@ const Home = () => {
         ...prev,
         {
           username: user.username,
-          gistUrl: "",
+          gistUrl,
           rank: currentRank.toString(),
           rankMessage,
         },

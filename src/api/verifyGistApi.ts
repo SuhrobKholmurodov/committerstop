@@ -18,17 +18,50 @@ export const verifyGistApi = createApi({
   endpoints: (builder) => ({
     verifyUserGist: builder.query<
       VerifyGistResponse,
-      { username: string; token: string }
+      { username: string; token?: string }
     >({
       query: ({ username }) => `users/${username}/gists`,
       transformResponse: (response: GitHubGist[], _, arg) => {
         const { username, token } = arg;
 
-        const found = response.find(
-          (gist) => gist.description && gist.description.includes(token)
+        if (token) {
+          const foundByToken = response.find(
+            (gist) => gist.description && gist.description.includes(token)
+          );
+          if (foundByToken) {
+            const verifiedUsers: {
+              username: string;
+              gistUrl: string;
+              rank: string;
+            }[] = JSON.parse(localStorage.getItem("verifiedUsers") || "[]");
+
+            const exists = verifiedUsers.some((u) => u.username === username);
+
+            if (!exists) {
+              verifiedUsers.push({
+                username,
+                gistUrl: foundByToken.html_url,
+                rank: "Contributor",
+              });
+              localStorage.setItem(
+                "verifiedUsers",
+                JSON.stringify(verifiedUsers)
+              );
+            }
+
+            return { verified: true, gistUrl: foundByToken.html_url };
+          }
+
+          return { verified: false };
+        }
+
+        const foundAny = response.find(
+          (gist) =>
+            gist.description &&
+            /commiters?-tj-verify-[0-9a-zA-Z]+/i.test(gist.description)
         );
 
-        if (found) {
+        if (foundAny) {
           const verifiedUsers: {
             username: string;
             gistUrl: string;
@@ -40,7 +73,7 @@ export const verifyGistApi = createApi({
           if (!exists) {
             verifiedUsers.push({
               username,
-              gistUrl: found.html_url,
+              gistUrl: foundAny.html_url,
               rank: "Contributor",
             });
             localStorage.setItem(
@@ -49,7 +82,7 @@ export const verifyGistApi = createApi({
             );
           }
 
-          return { verified: true, gistUrl: found.html_url };
+          return { verified: true, gistUrl: foundAny.html_url };
         }
 
         return { verified: false };

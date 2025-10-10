@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useGetGitHubUserByUsernameQuery } from "@/api/githubApi";
+import { useVerifyUserGistQuery } from "@/api/verifyGistApi";
 import { ArrowUpRight } from "lucide-react";
 import { LoadingSpinner } from "./LoadingSpinner";
 import { ErrorMessage } from "./ErrorMessage";
@@ -43,16 +44,53 @@ export const UserDialog = ({
     refetchOnMountOrArgChange: true,
   });
 
+  const {
+    data: verificationData,
+    isFetching: isCheckingVerification,
+    refetch: refetchVerification,
+    error: verificationError,
+  } = useVerifyUserGistQuery({ username: user.username }, { skip: !open });
+
   const [verificationOpen, setVerificationOpen] = useState(false);
   const [verifiedUsers, setVerifiedUsers] = useState<VerifiedUser[]>([]);
-  const currentUser = localStorage.getItem("currentUser");
-  const isVerified = verifiedUsers.some((v) => v.username === user.username);
+
   useEffect(() => {
     const stored = localStorage.getItem("verifiedUsers");
     if (stored) {
-      setVerifiedUsers(JSON.parse(stored));
+      try {
+        setVerifiedUsers(JSON.parse(stored));
+      } catch {
+        setVerifiedUsers([]);
+      }
     }
   }, []);
+
+  useEffect(() => {
+    if (open) {
+      refetchVerification?.();
+    }
+  }, [open, refetchVerification]);
+
+  useEffect(() => {
+    if (verificationData?.verified) {
+      const stored = localStorage.getItem("verifiedUsers");
+      const parsed: VerifiedUser[] = stored ? JSON.parse(stored) : [];
+      if (!parsed.find((u) => u.username === user.username)) {
+        parsed.push({
+          username: user.username,
+          gistUrl: verificationData.gistUrl || "",
+          rank: user.rank?.toString() || "",
+          rankMessage: "",
+        });
+        localStorage.setItem("verifiedUsers", JSON.stringify(parsed));
+        setVerifiedUsers(parsed);
+      }
+    }
+  }, [verificationData, user.username, user.rank]);
+
+  const hasAnyLocallyVerified = verifiedUsers.length > 0;
+  const isGloballyVerified = Boolean(verificationData?.verified);
+  const showVerifyButton = !hasAnyLocallyVerified && !isGloballyVerified;
 
   return (
     <>
@@ -135,12 +173,30 @@ export const UserDialog = ({
                     Location: {userInfo.location}
                   </p>
                 )}
-                {user.username === currentUser && !isVerified && (
+
+                {isCheckingVerification && (
+                  <p className="text-sm text-gray-500">
+                    Проверка статуса верификации...
+                  </p>
+                )}
+                {verificationError && (
+                  <p className="text-sm text-red-500">
+                    Ошибка проверки верификации
+                  </p>
+                )}
+
+                {showVerifyButton && (
                   <div className="flex justify-center mt-4">
                     <Button onClick={() => setVerificationOpen(true)}>
                       Это я
                     </Button>
                   </div>
+                )}
+
+                {isGloballyVerified && (
+                  <p className="text-sm text-green-600 mt-2">
+                    ✅ Аккаунт верифицирован публично. Gist:{" "}
+                  </p>
                 )}
               </div>
             )}
@@ -151,15 +207,19 @@ export const UserDialog = ({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <UserVerification
-        username={user.username}
-        open={verificationOpen}
-        onOpenChange={setVerificationOpen}
-        onVerified={() => {
-          onVerified(user);
-          setVerificationOpen(false);
-        }}
-      />
+
+      {user && (
+        <UserVerification
+          username={user.username}
+          userRank={user.rank}
+          open={verificationOpen}
+          onOpenChange={setVerificationOpen}
+          onVerified={() => {
+            onVerified(user);
+            setVerificationOpen(false);
+          }}
+        />
+      )}
     </>
   );
 };
