@@ -49,46 +49,57 @@ export const UserTable = ({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {users.map((user) => (
-              <TableRow
-                key={user.username}
-                className="hover:bg-gray-50 dark:hover:bg-gray-800"
-              >
-                <TableCell className="text-center dark:bg-gray-900/20 bg-gray-50/20 backdrop-blur-lg font-medium sticky left-0">
-                  {user.rank}
-                </TableCell>
-                <TableCell>
-                  <button
-                    className="text-blue-500 hover:underline cursor-pointer bg-transparent border-none p-0"
-                    onClick={() => openDialog(user)}
-                  >
-                    {user.username}
-                  </button>
+            {users.map((user) => {
+              const verified = verifiedUsers.some(
+                (v) => v.username === user.username
+              );
 
-                  {verifiedUsers.some((u) => u.username === user.username) && (
-                    <CheckCircle
-                      className="inline text-green-600 ml-1"
-                      size={16}
+              return (
+                <TableRow
+                  key={user.username}
+                  className={`transition-all duration-200 ${
+                    verified
+                      ? "bg-gradient-to-r from-emerald-500/10 to-teal-100/10 dark:from-emerald-950/30 dark:to-teal-950/30 border-l-4 border-l-emerald-500 shadow-sm"
+                      : "hover:bg-gray-50 dark:hover:bg-gray-800"
+                  }`}
+                >
+                  <TableCell className="text-center sticky left-0 backdrop-blur-lg font-medium">
+                    {user.rank}
+                  </TableCell>
+
+                  <TableCell className="flex items-center gap-2">
+                    <button
+                      className={`cursor-pointer text-blue-500 bg-transparent border-none p-0`}
+                      onClick={() => openDialog(user)}
+                    >
+                      {user.username}
+                    </button>
+                    <span className="text-sm text-gray-500 ml-1">
+                      {user.realname && user.realname.length > 0
+                        ? `(${user.realname})`
+                        : "()"}
+                    </span>
+                    {verified && (
+                      <CheckCircle className="text-emerald-500" size={18} />
+                    )}
+                  </TableCell>
+
+                  <TableCell className="text-center">{user.commits}</TableCell>
+
+                  <TableCell className="text-center">
+                    <img
+                      src={user.avatar || "/placeholder.svg"}
+                      alt={user.username}
+                      className={`w-10 h-10 rounded-full mx-auto border-2 ${
+                        verified
+                          ? "border-emerald-500 ring-2 ring-emerald-200 dark:ring-emerald-800"
+                          : "border-gray-200 dark:border-gray-600"
+                      }`}
                     />
-                  )}
-
-                  <br />
-                  <span className="text-sm text-gray-500 ml-1">
-                    {user.realname && user.realname.length > 0
-                      ? `(${user.realname})`
-                      : "()"}
-                  </span>
-                </TableCell>
-                <TableCell className="text-center">{user.commits}</TableCell>
-                <TableCell className="text-center">
-                  <img
-                    src={user.avatar}
-                    alt={user.username}
-                    className="w-10 h-10 rounded-full mx-auto"
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </div>
