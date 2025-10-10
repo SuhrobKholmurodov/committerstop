@@ -14,6 +14,13 @@ export const verifyGistApi = createApi({
   reducerPath: "verifyGistApi",
   baseQuery: fetchBaseQuery({
     baseUrl: "https://api.github.com/",
+    prepareHeaders: (headers) => {
+      const token = import.meta.env.VITE_GITHUB_TOKEN;
+      if (token) {
+        headers.set("Authorization", `Bearer ${token}`);
+      }
+      return headers;
+    },
   }),
   endpoints: (builder) => ({
     verifyUserGist: builder.query<
