@@ -53,6 +53,7 @@ const Home = () => {
           gistUrl,
           rank: currentRank.toString(),
           rankMessage,
+          verifiedAt: new Date().toISOString(),
         },
       ];
 

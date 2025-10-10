@@ -27,6 +27,7 @@ export type VerifiedUser = {
   gistUrl: string;
   rank: string;
   rankMessage?: string;
+  verifiedAt?: string;
 };
 
 export const UserDialog = ({
@@ -53,8 +54,8 @@ export const UserDialog = ({
 
   const [verificationOpen, setVerificationOpen] = useState(false);
   const [verifiedUsers, setVerifiedUsers] = useState<VerifiedUser[]>([]);
+  console.log("verifiedUser", verifiedUsers);
 
-  console.log("erssdsd", verifiedUsers);
   useEffect(() => {
     const stored = localStorage.getItem("verifiedUsers");
     if (stored) {
@@ -79,10 +80,12 @@ export const UserDialog = ({
       if (!parsed.find((u) => u.username === user.username)) {
         parsed.push({
           username: user.username,
-          gistUrl: verificationData.gistUrl || "",
+          gistUrl: "",
           rank: user.rank?.toString() || "",
           rankMessage: "",
+          verifiedAt: new Date().toISOString(),
         });
+
         localStorage.setItem("verifiedUsers", JSON.stringify(parsed));
         setVerifiedUsers(parsed);
       }
