@@ -55,7 +55,6 @@ export const UserDialog = ({
   const [verificationOpen, setVerificationOpen] = useState(false);
   const [verifiedUsers, setVerifiedUsers] = useState<VerifiedUser[]>([]);
 
-  // Load persisted verified users (if any)
   useEffect(() => {
     const stored = localStorage.getItem("verifiedUsers");
     if (stored) {
@@ -67,14 +66,12 @@ export const UserDialog = ({
     }
   }, []);
 
-  // Re-check verification when dialog opens
   useEffect(() => {
     if (open) {
       refetchVerification?.();
     }
   }, [open, refetchVerification]);
 
-  // When verification succeeds, add a simplified VerifiedUser entry
   useEffect(() => {
     if (verificationData?.verified) {
       const stored = localStorage.getItem("verifiedUsers");
@@ -102,7 +99,7 @@ export const UserDialog = ({
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-md sm:max-w-[360px] rounded-md">
+        <DialogContent className="max-w-md sm:max-w-[360px] bg-white dark:bg-gray-900 rounded-md">
           <DialogHeader className="pb-2 border-b border-gray-200 dark:border-gray-700">
             <DialogTitle className="text-xl font-semibold">
               User info: {user.username}
@@ -192,14 +189,6 @@ export const UserDialog = ({
                   </p>
                 )}
 
-                {showVerifyButton && (
-                  <div className="flex justify-center mt-4">
-                    <Button onClick={() => setVerificationOpen(true)}>
-                      It's me
-                    </Button>
-                  </div>
-                )}
-
                 {isVerified && (
                   <p className="text-sm text-green-600 mt-2">
                     ✅ Account is verified.
@@ -209,8 +198,20 @@ export const UserDialog = ({
             )}
           </DialogDescription>
 
-          <DialogFooter className="border-t border-gray-200 dark:border-gray-700 pt-4">
-            <Button onClick={() => onOpenChange(false)}>Close</Button>
+          <DialogFooter className="grid grid-cols-2 gap-2 border-t border-gray-200 dark:border-gray-700 pt-4 w-full">
+            <div>
+              {showVerifyButton && (
+                <Button
+                  className="w-full bg-green-700 text-white hover:bg-green-600"
+                  onClick={() => setVerificationOpen(true)}
+                >
+                  It's me
+                </Button>
+              )}
+            </div>
+            <Button className="w-full" onClick={() => onOpenChange(false)}>
+              Close
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -218,8 +219,6 @@ export const UserDialog = ({
       {user && (
         <UserVerificationDialog
           username={user.username}
-          userRank={user.rank}
-          lastRank={undefined}
           open={verificationOpen}
           onOpenChange={setVerificationOpen}
           onVerified={() => {
