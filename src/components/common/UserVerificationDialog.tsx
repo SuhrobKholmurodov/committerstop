@@ -8,11 +8,11 @@ import {
 import { useState, useEffect } from "react";
 import { Button } from "../ui/button";
 import { generateToken } from "@/utils";
+import { useReward } from "react-rewards";
+import { CheckIcon, ClipboardIcon } from "lucide-react";
 
 interface UserVerificationDialogProps {
   username: string;
-  userRank?: number;
-  lastRank?: number;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onVerified: () => void;
@@ -20,14 +20,15 @@ interface UserVerificationDialogProps {
 
 export default function UserVerificationDialog({
   username,
-  userRank,
-  lastRank,
   open,
   onOpenChange,
   onVerified,
 }: UserVerificationDialogProps) {
   const [token, setToken] = useState(generateToken);
   const [timeLeft, setTimeLeft] = useState(300);
+  const [copied, setCopied] = useState(false);
+
+  const { reward } = useReward("confettiReward", "confetti");
 
   useEffect(() => {
     if (timeLeft > 0) {
@@ -36,6 +37,7 @@ export default function UserVerificationDialog({
     } else {
       setToken(generateToken());
       setTimeLeft(300);
+      setCopied(false);
     }
   }, [timeLeft]);
 
@@ -50,24 +52,22 @@ export default function UserVerificationDialog({
     { skip: !username || !open }
   );
 
-  let rankMessage = "";
-  if (userRank && lastRank) {
-    if (userRank > lastRank)
-      rankMessage = `You dropped ${userRank - lastRank} place(s).`;
-    else if (userRank < lastRank)
-      rankMessage = `You rose ${lastRank - userRank} place(s).`;
-    else rankMessage = "Your position has not changed.";
-  }
-
   if (data?.verified) onVerified();
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(token).then(() => {
+      setCopied(true);
+      reward();
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[360px] rounded-md">
+      <DialogContent className="max-w-[430px] rounded-md">
         <DialogHeader>
           <DialogTitle>User Verification</DialogTitle>
         </DialogHeader>
-
         <div className="text-sm text-gray-700 dark:text-gray-300 mb-1 flex items-center justify-between">
           <span>Your token:</span>
           <span
@@ -85,6 +85,18 @@ export default function UserVerificationDialog({
           <code className="font-mono font-bold text-blue-600 dark:text-blue-400 break-all flex-1">
             {token}
           </code>
+          <span id="confettiReward" />
+          <button
+            onClick={handleCopy}
+            aria-label="Copy token"
+            className="p-1 rounded hover:bg-gray-300 dark:hover:bg-gray-700 transition"
+          >
+            {copied ? (
+              <CheckIcon className="w-5 h-5 text-green-600" />
+            ) : (
+              <ClipboardIcon className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+            )}
+          </button>
         </div>
 
         <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
@@ -113,12 +125,6 @@ export default function UserVerificationDialog({
         )}
         {data?.verified && (
           <p className="text-sm mt-2 text-green-600">✅ Account verified!</p>
-        )}
-
-        {rankMessage && (
-          <p className="text-sm mt-2 text-gray-700 dark:text-gray-300">
-            {rankMessage}
-          </p>
         )}
       </DialogContent>
     </Dialog>

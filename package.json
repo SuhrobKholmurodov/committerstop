@@ -30,6 +30,7 @@
     "react-fox-toast": "^1.10.20",
     "react-helmet-async": "^2.0.5",
     "react-redux": "^9.2.0",
+    "react-rewards": "^2.1.0",
     "react-router-dom": "^7.6.3",
     "react-toggle-dark-mode": "^1.1.1",
     "tailwind-merge": "^3.3.1",
