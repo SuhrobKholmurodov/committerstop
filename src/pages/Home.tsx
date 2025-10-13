@@ -118,7 +118,7 @@ const Home = () => {
 
     localStorage.setItem("verifiedUsers", JSON.stringify(parsed));
     setVerifiedUsers(parsed);
-  }, [data, verifiedUsers]);
+  }, [data]);
 
   const sortedAndFilteredUsers = useMemo(() => {
     if (!localData) return [];
