@@ -24,7 +24,7 @@ export default function UserVerificationDialog({
   onOpenChange,
   onVerified,
 }: UserVerificationDialogProps) {
-  const [token, setToken] = useState(generateToken);
+  const [token] = useState(() => generateToken());
   const [timeLeft, setTimeLeft] = useState(300);
   const [copied, setCopied] = useState(false);
 
@@ -37,7 +37,6 @@ export default function UserVerificationDialog({
     { username, token },
     { skip: !username || !open }
   );
-  console.log("data", data);
 
   useEffect(() => {
     if (open && username) {
@@ -47,15 +46,12 @@ export default function UserVerificationDialog({
 
   useEffect(() => {
     if (open) {
-      setToken(generateToken());
-      setTimeLeft(300);
       setCopied(false);
     }
   }, [open]);
 
   useEffect(() => {
     if (timeLeft <= 0) {
-      setToken(generateToken());
       setTimeLeft(300);
       setCopied(false);
       return;
