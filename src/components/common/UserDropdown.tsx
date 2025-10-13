@@ -92,7 +92,7 @@ export default function UserDropdown({ verifiedUser, onLogout }: Props) {
                     Verified Since
                   </span>
                 </div>
-                <div className="flex items-center gap-1.5 mt-0.5 p-1 rounded bg-white/50 dark:bg-gray-800/30">
+                <div className="flex items-center gap-1.5 mt-0.5 p-1 rounded bg-gray-100 dark:bg-gray-800/90">
                   <Calendar
                     size={14}
                     className="text-blue-500 dark:text-blue-400"
@@ -104,7 +104,7 @@ export default function UserDropdown({ verifiedUser, onLogout }: Props) {
                   </span>
                 </div>
                 {verifiedUser.verifiedAt && (
-                  <div className="flex items-center gap-1.5 mt-0.5 p-1 rounded bg-white/30 dark:bg-gray-800/20">
+                  <div className="flex items-center gap-1.5 mt-0.5 p-1 rounded bg-gray-100 dark:bg-gray-800/90">
                     <Clock
                       size={14}
                       className="text-purple-500 dark:text-purple-400"

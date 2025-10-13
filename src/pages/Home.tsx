@@ -11,7 +11,6 @@ import {
   type VerifiedUser,
 } from "@/components/common";
 import { useSearchParams } from "react-router-dom";
-import { CheckCircle } from "lucide-react";
 
 const PAGE_SIZE = 20;
 
@@ -36,16 +35,13 @@ const Home = () => {
   const handleUserVerified = (user: Committer, gistUrl = "") => {
     setVerifiedUsers((prev) => {
       if (prev.find((u) => u.username === user.username)) return prev;
-
       const currentRank =
         sortedAndFilteredUsers.findIndex((u) => u.username === user.username) +
         1;
-
       let rankMessage = "";
       if (currentRank) {
         rankMessage = "Ваша позиция не изменилась.";
       }
-
       const updated: VerifiedUser[] = [
         ...prev,
         {
@@ -76,9 +72,53 @@ const Home = () => {
   );
 
   useEffect(() => setLocalData([]), [mode]);
+
   useEffect(() => {
     if (data?.users) setLocalData(data.users);
   }, [data]);
+
+  useEffect(() => {
+    if (!data?.users || verifiedUsers.length === 0) return;
+    const me = data.users.find((u) => u.username === verifiedUsers[0].username);
+    if (!me) return;
+    const stored = localStorage.getItem("verifiedUsers");
+    const parsed: VerifiedUser[] = stored ? JSON.parse(stored) : [];
+    const existing = parsed.find((u) => u.username === me.username);
+    const currentRank = me.rank;
+    let rankMessage = "";
+    let direction: "up" | "down" | "same" = "same";
+
+    if (existing) {
+      const oldRank = parseInt(existing.rank, 10);
+
+      if (currentRank < oldRank) {
+        rankMessage = `You moved up ↑ by ${oldRank - currentRank} positions`;
+        direction = "up";
+      } else if (currentRank > oldRank) {
+        rankMessage = `You moved down ↓ by ${currentRank - oldRank} positions`;
+        direction = "down";
+      } else {
+        rankMessage = "Your position has not changed.";
+      }
+      existing.rank = currentRank.toString();
+      existing.rankMessage = rankMessage;
+      existing.direction = direction;
+      existing.verifiedAt = new Date().toISOString();
+    } else {
+      const newUser: VerifiedUser = {
+        username: me.username,
+        gistUrl: "",
+        rank: currentRank.toString(),
+        rankMessage: "You have just been added to the ranking.",
+        direction: "same",
+        verifiedAt: new Date().toISOString(),
+      };
+      parsed.push(newUser);
+    }
+
+    localStorage.setItem("verifiedUsers", JSON.stringify(parsed));
+    setVerifiedUsers(parsed);
+  }, [data, verifiedUsers]);
 
   const sortedAndFilteredUsers = useMemo(() => {
     if (!localData) return [];
@@ -125,7 +165,7 @@ const Home = () => {
   }, [visibleCount, sortedAndFilteredUsers.length]);
 
   return (
-    <div className="max-w-5xl mx-auto p-4">
+    <div className="max-w-6xl mx-auto p-4">
       <Helmet>
         <title>Most active GitHub users in Tajikistan</title>
       </Helmet>
@@ -141,32 +181,13 @@ const Home = () => {
         </p>
       )}
 
-      {verifiedUsers.length > 0 && (
-        <div className="mb-4 space-y-3 bg-green-50 dark:bg-green-900/30 p-4 rounded-md border border-green-300 dark:border-green-700">
-          {verifiedUsers.map((user) => (
-            <div
-              key={user.username}
-              className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
-            >
-              <p className="text-green-700 dark:text-green-300 flex items-center gap-1 font-medium">
-                <CheckCircle size={18} /> {user.username} — Verified
-              </p>
-              {user.rankMessage && (
-                <p className="text-gray-700 dark:text-gray-300 italic text-sm">
-                  {user.rankMessage}
-                </p>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
-
       <FilterBar
         mode={mode}
         setMode={setMode}
         refetch={refetch}
         sortBy={sortBy}
         setSortBy={setSortBy}
+        verifiedUsers={verifiedUsers}
       />
 
       {(isFetching || localData.length === 0) && <LoadingSpinner />}

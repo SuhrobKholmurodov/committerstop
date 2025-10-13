@@ -22,13 +22,14 @@ interface UserDialogProps {
   onOpenChange: (open: boolean) => void;
   onVerified: (user: Committer) => void;
 }
-export type VerifiedUser = {
+export interface VerifiedUser {
   username: string;
   gistUrl: string;
   rank: string;
-  rankMessage?: string;
-  verifiedAt?: string;
-};
+  rankMessage: string;
+  verifiedAt: string;
+  direction?: string;
+}
 
 export const UserDialog = ({
   user,
@@ -54,8 +55,7 @@ export const UserDialog = ({
 
   const [verificationOpen, setVerificationOpen] = useState(false);
   const [verifiedUsers, setVerifiedUsers] = useState<VerifiedUser[]>([]);
-  console.log("verifiedUser", verifiedUsers);
-
+  
   useEffect(() => {
     const stored = localStorage.getItem("verifiedUsers");
     if (stored) {
