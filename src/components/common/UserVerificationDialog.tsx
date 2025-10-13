@@ -33,29 +33,49 @@ export default function UserVerificationDialog({
     elementSize: 5,
   });
 
+  const { data, isFetching, refetch, error } = useVerifyUserGistQuery(
+    { username, token },
+    { skip: !username || !open }
+  );
+  console.log("data", data);
+
   useEffect(() => {
-    if (timeLeft > 0) {
-      const timer = setTimeout(() => setTimeLeft((prev) => prev - 1), 1000);
-      return () => clearTimeout(timer);
-    } else {
+    if (open && username) {
+      refetch();
+    }
+  }, [open, username, token, refetch]);
+
+  useEffect(() => {
+    if (open) {
       setToken(generateToken());
       setTimeLeft(300);
       setCopied(false);
     }
+  }, [open]);
+
+  useEffect(() => {
+    if (timeLeft <= 0) {
+      setToken(generateToken());
+      setTimeLeft(300);
+      setCopied(false);
+      return;
+    }
+
+    const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
+    return () => clearTimeout(timer);
   }, [timeLeft]);
+
+  useEffect(() => {
+    if (data?.verified) {
+      onVerified();
+    }
+  }, [data, onVerified]);
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
     return `${m}:${s.toString().padStart(2, "0")}`;
   };
-
-  const { data, isFetching, refetch, error } = useVerifyUserGistQuery(
-    { username, token },
-    { skip: !username || !open }
-  );
-
-  if (data?.verified) onVerified();
 
   const handleCopy = () => {
     navigator.clipboard.writeText(token).then(() => {

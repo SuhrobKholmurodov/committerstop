@@ -197,18 +197,19 @@ export const UserDialog = ({
               </div>
             )}
           </DialogDescription>
-
-          <DialogFooter className="grid grid-cols-2 gap-2 border-t border-gray-200 dark:border-gray-700 pt-4 w-full">
-            <div>
-              {showVerifyButton && (
-                <Button
-                  className="w-full bg-green-700 text-white hover:bg-green-600"
-                  onClick={() => setVerificationOpen(true)}
-                >
-                  It's me
-                </Button>
-              )}
-            </div>
+          <DialogFooter
+            className={`grid ${
+              showVerifyButton ? "grid-cols-2 gap-2" : "grid-cols-1"
+            } border-t border-gray-200 dark:border-gray-700 pt-4 w-full`}
+          >
+            {showVerifyButton && (
+              <Button
+                className="w-full bg-green-700 text-white hover:bg-green-600"
+                onClick={() => setVerificationOpen(true)}
+              >
+                It's me
+              </Button>
+            )}
             <Button className="w-full" onClick={() => onOpenChange(false)}>
               Close
             </Button>
