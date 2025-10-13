@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { Switcher, type VerifiedUser } from "@/components/common";
 import {
   Tooltip,
@@ -8,21 +7,12 @@ import {
 import UserDropdown from "./UserDropdown";
 import { CircleQuestionMark } from "lucide-react";
 
-export const Header = () => {
-  const [verifiedUser, setVerifiedUser] = useState<VerifiedUser | null>(null);
+interface HeaderProps {
+  verifiedUser: VerifiedUser | null;
+  onLogout: () => void;
+}
 
-  useEffect(() => {
-    const stored = localStorage.getItem("verifiedUsers");
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        if (parsed.length > 0) setVerifiedUser(parsed[0]);
-      } catch {
-        setVerifiedUser(null);
-      }
-    }
-  }, []);
-
+export const Header = ({ verifiedUser, onLogout }: HeaderProps) => {
   return (
     <div
       id="header-section"
@@ -50,14 +40,7 @@ export const Header = () => {
       <div className="flex gap-3 items-center sm:justify-between sm:flex-row-reverse sm:w-full">
         <Switcher />
         {verifiedUser && (
-          <UserDropdown
-            verifiedUser={verifiedUser}
-            onLogout={() => {
-              localStorage.removeItem("verifiedUsers");
-              setVerifiedUser(null);
-              window.location.reload();
-            }}
-          />
+          <UserDropdown verifiedUser={verifiedUser} onLogout={onLogout} />
         )}
       </div>
     </div>

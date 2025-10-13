@@ -121,7 +121,13 @@ const Home = () => {
       <Helmet>
         <title>Most active GitHub users in Tajikistan</title>
       </Helmet>
-      <Header />
+      <Header
+        verifiedUser={verifiedUsers[0] || null}
+        onLogout={() => {
+          localStorage.removeItem("verifiedUsers");
+          setVerifiedUsers([]);
+        }}
+      />
 
       {data?.generatedAt && (
         <p className="text-start text-sm text-gray-500 dark:text-gray-400 mb-4">
