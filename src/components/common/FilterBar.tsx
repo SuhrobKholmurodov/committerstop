@@ -9,7 +9,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { RefreshCw, Search, X } from "lucide-react";
-import { Toast, Switcher, type VerifiedUser } from "@/components/common";
+import { Toast, Switcher } from "@/components/common";
 import type { Mode, SortOption } from "@/types";
 import { useSearchParams } from "react-router-dom";
 
@@ -20,7 +20,6 @@ interface FilterBarProps {
   refetch: () => Promise<any>;
   sortBy: SortOption;
   setSortBy: (val: SortOption) => void;
-  verifiedUsers: VerifiedUser[];
 }
 
 export const FilterBar = ({
@@ -29,7 +28,6 @@ export const FilterBar = ({
   refetch,
   sortBy,
   setSortBy,
-  verifiedUsers,
 }: FilterBarProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const urlSearch = searchParams.get("search") || "";
@@ -140,21 +138,6 @@ export const FilterBar = ({
           />
         </button>
       </div>
-
-      <div className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-        {verifiedUsers.length > 0 && (
-          <div className="flex items-center gap-1">
-            {verifiedUsers[0].direction === "up" && (
-              <span className="text-green-500 font-medium">↑</span>
-            )}
-            {verifiedUsers[0].direction === "down" && (
-              <span className="text-red-500 font-medium">↓</span>
-            )}
-            <span>{verifiedUsers[0].rankMessage}</span>
-          </div>
-        )}
-      </div>
-
       <div className="flex sm:flex-col sm:w-full items-center gap-2">
         <Select
           value={sortBy}

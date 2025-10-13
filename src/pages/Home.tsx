@@ -28,27 +28,22 @@ const Home = () => {
   useEffect(() => {
     const stored = localStorage.getItem("verifiedUsers");
     if (stored) {
-      setVerifiedUsers(JSON.parse(stored));
+      try {
+        setVerifiedUsers(JSON.parse(stored));
+      } catch {
+        setVerifiedUsers([]);
+      }
     }
   }, []);
 
   const handleUserVerified = (user: Committer, gistUrl = "") => {
     setVerifiedUsers((prev) => {
       if (prev.find((u) => u.username === user.username)) return prev;
-      const currentRank =
-        sortedAndFilteredUsers.findIndex((u) => u.username === user.username) +
-        1;
-      let rankMessage = "";
-      if (currentRank) {
-        rankMessage = "Ваша позиция не изменилась.";
-      }
       const updated: VerifiedUser[] = [
         ...prev,
         {
           username: user.username,
           gistUrl,
-          rank: currentRank.toString(),
-          rankMessage,
           verifiedAt: new Date().toISOString(),
         },
       ];
@@ -75,49 +70,6 @@ const Home = () => {
 
   useEffect(() => {
     if (data?.users) setLocalData(data.users);
-  }, [data]);
-
-  useEffect(() => {
-    if (!data?.users || verifiedUsers.length === 0) return;
-    const me = data.users.find((u) => u.username === verifiedUsers[0].username);
-    if (!me) return;
-    const stored = localStorage.getItem("verifiedUsers");
-    const parsed: VerifiedUser[] = stored ? JSON.parse(stored) : [];
-    const existing = parsed.find((u) => u.username === me.username);
-    const currentRank = me.rank;
-    let rankMessage = "";
-    let direction: "up" | "down" | "same" = "same";
-
-    if (existing) {
-      const oldRank = parseInt(existing.rank, 10);
-
-      if (currentRank < oldRank) {
-        rankMessage = `You moved up ↑ by ${oldRank - currentRank} positions`;
-        direction = "up";
-      } else if (currentRank > oldRank) {
-        rankMessage = `You moved down ↓ by ${currentRank - oldRank} positions`;
-        direction = "down";
-      } else {
-        rankMessage = "Your position has not changed.";
-      }
-      existing.rank = currentRank.toString();
-      existing.rankMessage = rankMessage;
-      existing.direction = direction;
-      existing.verifiedAt = new Date().toISOString();
-    } else {
-      const newUser: VerifiedUser = {
-        username: me.username,
-        gistUrl: "",
-        rank: currentRank.toString(),
-        rankMessage: "You have just been added to the ranking.",
-        direction: "same",
-        verifiedAt: new Date().toISOString(),
-      };
-      parsed.push(newUser);
-    }
-
-    localStorage.setItem("verifiedUsers", JSON.stringify(parsed));
-    setVerifiedUsers(parsed);
   }, [data]);
 
   const sortedAndFilteredUsers = useMemo(() => {
@@ -187,7 +139,6 @@ const Home = () => {
         refetch={refetch}
         sortBy={sortBy}
         setSortBy={setSortBy}
-        verifiedUsers={verifiedUsers}
       />
 
       {(isFetching || localData.length === 0) && <LoadingSpinner />}

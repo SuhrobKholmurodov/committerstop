@@ -22,13 +22,12 @@ interface UserDialogProps {
   onOpenChange: (open: boolean) => void;
   onVerified: (user: Committer) => void;
 }
+
+// Simplified VerifiedUser: only verification info
 export interface VerifiedUser {
   username: string;
   gistUrl: string;
-  rank: string;
-  rankMessage: string;
   verifiedAt: string;
-  direction?: string;
 }
 
 export const UserDialog = ({
@@ -55,7 +54,8 @@ export const UserDialog = ({
 
   const [verificationOpen, setVerificationOpen] = useState(false);
   const [verifiedUsers, setVerifiedUsers] = useState<VerifiedUser[]>([]);
-  
+
+  // Load persisted verified users (if any)
   useEffect(() => {
     const stored = localStorage.getItem("verifiedUsers");
     if (stored) {
@@ -67,12 +67,14 @@ export const UserDialog = ({
     }
   }, []);
 
+  // Re-check verification when dialog opens
   useEffect(() => {
     if (open) {
       refetchVerification?.();
     }
   }, [open, refetchVerification]);
 
+  // When verification succeeds, add a simplified VerifiedUser entry
   useEffect(() => {
     if (verificationData?.verified) {
       const stored = localStorage.getItem("verifiedUsers");
@@ -80,9 +82,7 @@ export const UserDialog = ({
       if (!parsed.find((u) => u.username === user.username)) {
         parsed.push({
           username: user.username,
-          gistUrl: "",
-          rank: user.rank?.toString() || "",
-          rankMessage: "",
+          gistUrl: verificationData.gistUrl || "",
           verifiedAt: new Date().toISOString(),
         });
 
@@ -90,7 +90,7 @@ export const UserDialog = ({
         setVerifiedUsers(parsed);
       }
     }
-  }, [verificationData, user.username, user.rank]);
+  }, [verificationData, user.username]);
 
   const hasAnyLocallyVerified = verifiedUsers.length > 0;
   const isGloballyVerified = Boolean(verificationData?.verified);
