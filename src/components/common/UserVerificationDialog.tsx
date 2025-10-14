@@ -88,7 +88,7 @@ export default function UserVerificationDialog({
       aria-labelledby="user-verification-title"
       aria-modal="true"
     >
-      <DialogContent className="max-w-[430px] rounded-md p-6 bg-white dark:bg-gray-900 shadow-lg ring-1 ring-black/5 dark:ring-white/10">
+      <DialogContent className="max-w-[430px] sm:max-w-[340px] rounded-md p-6 bg-white dark:bg-gray-900 shadow-lg ring-1 ring-black/5 dark:ring-white/10">
         <DialogHeader>
           <DialogTitle
             id="user-verification-title"
@@ -114,9 +114,9 @@ export default function UserVerificationDialog({
           </span>
         </div>
 
-        <div className="flex items-center gap-3 mb-4">
+        <div className="flex items-center gap-3 sm:gap-1 mb-4">
           <div
-            className="flex-1 bg-gray-100 dark:bg-gray-800 px-4 py-3 rounded-lg shadow-inner transition-colors break-words"
+            className="flex-1 bg-gray-100 dark:bg-gray-800 sm:px-2 sm:py-1 px-4 py-3 rounded-lg shadow-inner transition-colors break-words"
             aria-label={`Verification token: ${token}`}
             tabIndex={0}
           >
@@ -129,7 +129,7 @@ export default function UserVerificationDialog({
             <button
               onClick={handleCopy}
               aria-label={copied ? "Token copied" : "Copy token"}
-              className="p-[14px] rounded-md bg-gray-100 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 transition disabled:cursor-default disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500"
+              className="p-[14px] sm:p-[6] rounded-md bg-gray-100 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700 transition disabled:cursor-default disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500"
               disabled={copied}
               aria-live="polite"
               title={copied ? "Copied!" : "Copy token"}
@@ -151,8 +151,21 @@ export default function UserVerificationDialog({
         </div>
 
         <p className="mb-4 text-sm text-gray-700 dark:text-gray-300">
-          Create a <strong>public Gist</strong> with this token in the
-          description and click <span className="font-semibold">Verify</span>.
+          Create{" "}
+          <strong>
+            <span>
+              <a
+                href={`https://gist.github.com/${username}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 dark:text-blue-400 underline hover:text-blue-800"
+              >
+                public Gist
+              </a>
+            </span>
+          </strong>{" "}
+          with this token in the description and click{" "}
+          <span className="font-semibold">Verify</span>.
         </p>
 
         <div className="flex gap-3 justify-end mb-2">

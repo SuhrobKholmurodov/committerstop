@@ -147,7 +147,7 @@ export default function UserDropdown({ verifiedUser, onLogout }: Props) {
           if (!val) setDropdownOpen(false);
         }}
       >
-        <DialogContent className="max-w-[300px] rounded-md">
+        <DialogContent className="max-w-[300px] bg-white dark:bg-gray-900 rounded-md">
           <DialogHeader>
             <DialogTitle>Confirm Logout</DialogTitle>
           </DialogHeader>
