@@ -27,12 +27,17 @@ export const verifyGistApi = createApi({
       VerifyGistResponse,
       { username: string; token?: string }
     >({
-      query: ({ username }) => `users/${username}/gists`,
+      query: ({ username }) => {
+        return {
+          url: `users/${username}/gists`,
+          params: {
+            per_page: 100,
+            _t: Date.now(),
+          },
+        };
+      },
+      keepUnusedDataFor: 0,
       transformResponse: (response: GitHubGist[], _, arg) => {
-        console.log(
-          "all gist:",
-          response.map((g) => g.description)
-        );
         const { username, token } = arg;
 
         const found = response.find(

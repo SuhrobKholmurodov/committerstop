@@ -39,6 +39,15 @@ export default function UserVerificationDialog({
   );
 
   useEffect(() => {
+    if (open && username && !data?.verified) {
+      const timer = setTimeout(() => {
+        refetch();
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [open, username, data?.verified, refetch]);
+
+  useEffect(() => {
     if (open && username) {
       refetch();
     }
@@ -79,6 +88,10 @@ export default function UserVerificationDialog({
       reward();
       setTimeout(() => setCopied(false), 2000);
     });
+  };
+
+  const handleVerify = () => {
+    refetch();
   };
 
   return (
@@ -158,7 +171,8 @@ export default function UserVerificationDialog({
                 href={`https://gist.github.com/${username}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-600 dark:text-blue-400 underline hover:text-blue-800"
+                className="text-blue-600 dark:text-blue-400 underline
+                hover:text-blue-800"
               >
                 public Gist
               </a>
@@ -171,7 +185,7 @@ export default function UserVerificationDialog({
         <div className="flex gap-3 justify-end mb-2">
           <Button
             className="bg-blue-600 hover:bg-blue-700 text-white transition focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
-            onClick={() => refetch()}
+            onClick={handleVerify}
             disabled={isFetching}
             type="button"
           >
