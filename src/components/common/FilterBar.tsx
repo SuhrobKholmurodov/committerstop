@@ -12,6 +12,8 @@ import { RefreshCw, Search, X } from "lucide-react";
 import { Toast, Switcher } from "@/components/common";
 import type { Mode, SortOption } from "@/types";
 import { useSearchParams } from "react-router-dom";
+import Tippy from "@tippyjs/react";
+import "tippy.js/dist/tippy.css";
 
 interface FilterBarProps {
   mode: Mode;
@@ -126,17 +128,24 @@ export const FilterBar = ({
             </ToggleGroupItem>
           ))}
         </ToggleGroup>
-        <button
-          onClick={handleRefetch}
-          className="w-10 ml-3 sm:ml-0 h-10 rounded transition 
-             hover:scale-110 active:scale-95"
+        <Tippy
+          content="Reload the data"
+          animation="shift-away"
+          duration={400}
+          placement="right"
         >
-          <RefreshCw
-            className={`w-6 h-6 text-gray-600 dark:text-gray-300 transition-transform duration-300 ${
-              isRefreshing ? "animate-spinOnce" : ""
-            }`}
-          />
-        </button>
+          <button
+            onClick={handleRefetch}
+            className="w-10 h-10 flex items-center justify-center rounded transition 
+               hover:scale-110 active:scale-95"
+          >
+            <RefreshCw
+              className={`w-6 h-6 text-gray-600 dark:text-gray-300 transition-transform duration-300 ${
+                isRefreshing ? "animate-spinOnce" : ""
+              }`}
+            />
+          </button>
+        </Tippy>
       </div>
       <div className="flex sm:flex-col sm:w-full items-center gap-2">
         <Select
