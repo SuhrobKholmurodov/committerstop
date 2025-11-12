@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from "react";
-import { useGetTajikistanUsersQuery } from "../api/committersApi";
 import type { Committer, Mode, SortOption } from "@/types";
 import { Helmet } from "react-helmet-async";
 import {
@@ -11,6 +10,7 @@ import {
   type VerifiedUser,
 } from "@/components/common";
 import { useSearchParams } from "react-router-dom";
+import { useGetTajikistanUsersQuery } from "@/api";
 
 const PAGE_SIZE = 20;
 

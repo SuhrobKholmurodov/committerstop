@@ -7,14 +7,13 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useGetGitHubUserByUsernameQuery } from "@/api/githubApi";
-import { useVerifyUserGistQuery } from "@/api/verifyGistApi";
 import { ArrowUpRight } from "lucide-react";
 import { LoadingSpinner } from "./LoadingSpinner";
 import { ErrorMessage } from "./ErrorMessage";
 import { useEffect, useState } from "react";
 import type { Committer } from "@/types";
 import UserVerificationDialog from "./UserVerificationDialog";
+import { useGetGitHubUserByUsernameQuery, useVerifyUserGistQuery } from "@/api";
 
 interface UserDialogProps {
   user: Committer;

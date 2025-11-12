@@ -1,4 +1,3 @@
-import { useVerifyUserGistQuery } from "@/api/verifyGistApi";
 import {
   Dialog,
   DialogContent,
@@ -10,6 +9,7 @@ import { Button } from "../ui/button";
 import { generateToken } from "@/utils";
 import { useReward } from "react-rewards";
 import { CheckIcon, ClipboardIcon } from "lucide-react";
+import { useVerifyUserGistQuery } from "@/api";
 
 interface UserVerificationDialogProps {
   username: string;
