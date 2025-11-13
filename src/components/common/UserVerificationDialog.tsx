@@ -10,6 +10,7 @@ import { generateToken } from "@/utils";
 import { useReward } from "react-rewards";
 import { CheckIcon, ClipboardIcon } from "lucide-react";
 import { useVerifyUserGistQuery } from "@/api";
+import { Toast } from "@/components/common";
 
 interface UserVerificationDialogProps {
   username: string;
@@ -39,21 +40,6 @@ export default function UserVerificationDialog({
   );
 
   useEffect(() => {
-    if (open && username && !data?.verified) {
-      const timer = setTimeout(() => {
-        refetch();
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [open, username, data?.verified, refetch]);
-
-  useEffect(() => {
-    if (open && username) {
-      refetch();
-    }
-  }, [open, username, token, refetch]);
-
-  useEffect(() => {
     if (open) {
       setCopied(false);
     }
@@ -72,6 +58,10 @@ export default function UserVerificationDialog({
 
   useEffect(() => {
     if (data?.verified) {
+      Toast(
+        "success",
+        "You have been successfully verified! Your GitHub Gist has been confirmed."
+      );
       onVerified();
     }
   }, [data, onVerified]);
@@ -90,8 +80,21 @@ export default function UserVerificationDialog({
     });
   };
 
-  const handleVerify = () => {
-    refetch();
+  const handleVerify = async () => {
+    const result = await refetch();
+
+    if (result.error || !result.data?.verified) {
+      Toast(
+        "error",
+        "Gist not found yet. Please check again – did you do everything correctly?"
+      );
+    } else {
+      Toast(
+        "success",
+        "You have been successfully verified! Your GitHub Gist has been confirmed."
+      );
+      onVerified();
+    }
   };
 
   return (

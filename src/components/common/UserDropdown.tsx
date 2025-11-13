@@ -22,6 +22,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "../ui/button";
+import { Toast } from "./Toast";
 
 interface VerifiedUser {
   username: string;
@@ -161,6 +162,7 @@ export default function UserDropdown({ verifiedUser, onLogout }: Props) {
               onClick={() => {
                 onLogout();
                 setConfirmOpen(false);
+                Toast("success", "You have successfully logged out!");
               }}
             >
               Logout
