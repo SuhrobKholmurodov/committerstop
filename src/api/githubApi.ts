@@ -1,7 +1,7 @@
 import type { GitHubUser } from "@/types";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-const token = import.meta.env.VITE_GITHUB_TOKEN;
+const token = import.meta.env.GITHUB_TOKEN;
 
 export const githubApi = createApi({
   reducerPath: "githubApi",

@@ -15,7 +15,7 @@ export const verifyGistApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: "https://api.github.com/",
     prepareHeaders: (headers) => {
-      const token = import.meta.env.VITE_GITHUB_TOKEN;
+      const token = import.meta.env.GITHUB_TOKEN;
       if (token) {
         headers.set("Authorization", `Bearer ${token}`);
       }
@@ -41,7 +41,7 @@ export const verifyGistApi = createApi({
         const { username, token } = arg;
 
         const found = response.find(
-          (gist) => gist.description && gist.description.includes(token!)
+          (gist) => gist.description && gist.description.includes(token!),
         );
 
         console.log("founded gist:", found);
@@ -62,7 +62,7 @@ export const verifyGistApi = createApi({
             });
             localStorage.setItem(
               "verifiedUsers",
-              JSON.stringify(verifiedUsers)
+              JSON.stringify(verifiedUsers),
             );
           }
 

@@ -11,7 +11,7 @@ const App = () => {
           <AppRoutes />
         </main>
         <Footer />
-        <ToastContainer />
+        <ToastContainer position="top-right" />
       </div>
     </Router>
   );
