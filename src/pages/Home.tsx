@@ -131,7 +131,7 @@ const Home = () => {
 
       {data?.generatedAt && (
         <p className="text-start text-sm text-gray-500 dark:text-gray-400 mb-4">
-          This list was generated at{" "}
+          This list was generated at: {" "}
           <code className="font-bold">
             {data.generatedAt.replace(/\s\+0000\.?$/, "")}
           </code>
