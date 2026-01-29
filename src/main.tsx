@@ -5,7 +5,7 @@ import "./index.css";
 import { Provider } from "react-redux";
 import { store } from "./store/index.ts";
 import { HelmetProvider } from "react-helmet-async";
-import { TooltipProvider } from "@/components/ui/tooltip"; 
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -16,5 +16,5 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         </TooltipProvider>
       </HelmetProvider>
     </Provider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );

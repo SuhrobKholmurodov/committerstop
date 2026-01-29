@@ -1,45 +1,21 @@
-import { useState, useEffect, useMemo } from "react";
-import type { Committer, Mode, SortOption } from "@/types";
+import { useState } from "react";
 import { Helmet } from "react-helmet-async";
-import {
-  ErrorMessage,
-  LoadingSpinner,
-  UserTable,
-  FilterBar,
-  Header,
-  type VerifiedUser,
-} from "@/components/common";
-import { useSearchParams } from "react-router-dom";
-import { useGetTajikistanUsersQuery } from "@/api";
-
-const PAGE_SIZE = 20;
+import { useGetCountriesQuery } from "@/api/countriesApi";
+import type { Committer } from "@/types";
+import { UserDialog, type VerifiedUser } from "@/components/common";
+import { Header } from "../components/common/Header";
+import { CountryCard } from "@/components/common/CountryCard";
 
 const Home = () => {
-  const [searchParams] = useSearchParams();
-  const initialMode = (searchParams.get("mode") as Mode) || "commits";
-  const [mode, setMode] = useState<Mode>(initialMode);
-
-  const initialSort =
-    (searchParams.get("sort") as SortOption) || "commits-desc";
-  const [sortBy, setSortBy] = useState<SortOption>(initialSort);
+  const { data: countries, isLoading } = useGetCountriesQuery();
+  const [selectedUser, setSelectedUser] = useState<Committer | null>(null);
 
   const [verifiedUsers, setVerifiedUsers] = useState<VerifiedUser[]>([]);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("verifiedUsers");
-    if (stored) {
-      try {
-        setVerifiedUsers(JSON.parse(stored));
-      } catch {
-        setVerifiedUsers([]);
-      }
-    }
-  }, []);
 
   const handleUserVerified = (user: Committer, gistUrl = "") => {
     setVerifiedUsers((prev) => {
       if (prev.find((u) => u.username === user.username)) return prev;
-      const updated: VerifiedUser[] = [
+      const updated = [
         ...prev,
         {
           username: user.username,
@@ -47,135 +23,79 @@ const Home = () => {
           verifiedAt: new Date().toISOString(),
         },
       ];
-
       localStorage.setItem("verifiedUsers", JSON.stringify(updated));
       return updated;
     });
   };
 
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
-  const [localData, setLocalData] = useState<Committer[]>([]);
-  const search = searchParams.get("search") || "";
-
-  const { data, error, isFetching, refetch } = useGetTajikistanUsersQuery(
-    mode,
-    {
-      refetchOnMountOrArgChange: true,
-      refetchOnFocus: true,
-      refetchOnReconnect: true,
-    }
-  );
-
-  useEffect(() => setLocalData([]), [mode]);
-
-  useEffect(() => {
-    if (data?.users) setLocalData(data.users);
-  }, [data]);
-
-  const sortedAndFilteredUsers = useMemo(() => {
-    if (!localData) return [];
-    let users = [...localData];
-    if (search.trim()) {
-      users = users.filter((u) =>
-        u.username.toLowerCase().includes(search.toLowerCase())
-      );
-    }
-    switch (sortBy) {
-      case "alphabetical-asc":
-        users.sort((a, b) => a.username.localeCompare(b.username));
-        break;
-      case "alphabetical-desc":
-        users.sort((a, b) => b.username.localeCompare(a.username));
-        break;
-      case "commits-asc":
-        users.sort((a, b) => a.commits - b.commits);
-        break;
-      case "commits-desc":
-      default:
-        users.sort((a, b) => b.commits - a.commits);
-    }
-    return users;
-  }, [localData, search, sortBy]);
-
-  useEffect(() => {
-    setVisibleCount(PAGE_SIZE);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [mode, search, sortBy]);
-
-  useEffect(() => {
-    const onScroll = () => {
-      if (
-        window.innerHeight + window.scrollY >=
-          document.body.offsetHeight - 200 &&
-        visibleCount < sortedAndFilteredUsers.length
-      ) {
-        setVisibleCount((v) => v + PAGE_SIZE);
-      }
-    };
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [visibleCount, sortedAndFilteredUsers.length]);
+  const handleLogout = () => {
+    localStorage.removeItem("verifiedUsers");
+    setVerifiedUsers([]);
+  };
 
   return (
-    <div className="max-w-6xl mx-auto p-4">
+    <div className="max-w-7xl mx-auto p-4 md:p-6">
       <Helmet>
-        <title>Most active GitHub users in Tajikistan</title>
-      </Helmet>
-      <Header
-        verifiedUser={verifiedUsers[0] || null}
-        onLogout={() => {
-          localStorage.removeItem("verifiedUsers");
-          setVerifiedUsers([]);
-        }}
-      />
-
-      {data?.generatedAt && (
-        <p className="text-start text-sm text-gray-500 dark:text-gray-400 mb-4">
-          This list was generated at: {" "}
-          <code className="font-bold">
-            {data.generatedAt.replace(/\s\+0000\.?$/, "")}
-          </code>
-          .
-        </p>
-      )}
-
-      <FilterBar
-        mode={mode}
-        setMode={setMode}
-        refetch={refetch}
-        sortBy={sortBy}
-        setSortBy={setSortBy}
-      />
-
-      {(isFetching || localData.length === 0) && <LoadingSpinner />}
-      {error && (
-        <ErrorMessage
-          title="Error loading data"
-          message="Try refreshing the page."
-          className="mt-10"
+        <title>GitHub Contributors by Country | Global Rankings</title>
+        <meta
+          name="description"
+          content="Discover top GitHub contributors from countries worldwide. Explore rankings, stats, and connect with developers."
         />
-      )}
+      </Helmet>
 
-      {!error && sortedAndFilteredUsers.length === 0 && !isFetching && (
-        <p className="text-center text-gray-600 dark:text-gray-400">
-          No users found
+      <Header verifiedUser={verifiedUsers[0] || null} onLogout={handleLogout} />
+
+      <div className="mb-8 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 rounded-xl">
+        <p className="text-gray-600 dark:text-gray-300 text-center">
+          Discover {countries?.length} countries with active GitHub communities.
+          Click any country to explore top contributors.
         </p>
+      </div>
+
+      {isLoading ? (
+        <div className="grid grid-cols-3 gap-6">
+          {[...Array(12)].map((_, i) => (
+            <div
+              key={i}
+              className="border rounded-xl p-4 bg-white dark:bg-gray-900 animate-pulse"
+            >
+              <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-4"></div>
+              <div className="space-y-3">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-3 gap-6">
+            {countries?.map((country) => (
+              <CountryCard
+                key={country.slug}
+                country={country}
+                onUserClick={setSelectedUser}
+              />
+            ))}
+          </div>
+
+          <div className="mt-8 text-center text-gray-500 dark:text-gray-400">
+            <p>
+              Showing {countries?.length || 0} countries with active GitHub
+              communities
+            </p>
+          </div>
+        </>
       )}
 
-      {!error && sortedAndFilteredUsers.length > 0 && !isFetching && (
-        <>
-          <UserTable
-            users={sortedAndFilteredUsers.slice(0, visibleCount)}
-            onUserVerified={handleUserVerified}
-            verifiedUsers={verifiedUsers}
-          />
-
-          {visibleCount < sortedAndFilteredUsers.length && (
-            <div className="flex justify-center my-4">
-              <LoadingSpinner />
-            </div>
-          )}
-        </>
+      {selectedUser && (
+        <UserDialog
+          user={selectedUser}
+          open={true}
+          onOpenChange={() => setSelectedUser(null)}
+          onVerified={handleUserVerified}
+        />
       )}
     </div>
   );

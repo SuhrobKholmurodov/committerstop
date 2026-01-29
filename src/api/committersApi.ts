@@ -1,11 +1,11 @@
 import type { Committer, Mode } from "@/types";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
-const modeToUrl: Record<Mode, string> = {
-  commits: "https://committers.top/tajikistan",
-  contributions: "https://committers.top/tajikistan_public",
-  all: "https://committers.top/tajikistan_private",
-};
+const modeToUrl = (country: string): Record<Mode, string> => ({
+  commits: `https://committers.top/${country}`,
+  contributions: `https://committers.top/${country}_public`,
+  all: `https://committers.top/${country}_private`,
+});
 
 export const committersApi = createApi({
   reducerPath: "committersApi",
@@ -14,11 +14,11 @@ export const committersApi = createApi({
     responseHandler: (response) => response.text(),
   }),
   endpoints: (builder) => ({
-    getTajikistanUsers: builder.query<
+    getCountryUsers: builder.query<
       { users: Committer[]; generatedAt: string },
-      Mode
+      { country: string; mode: Mode }
     >({
-      query: (mode) => modeToUrl[mode],
+      query: ({ country, mode }) => modeToUrl(country)[mode],
       transformResponse: (html: string) => {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, "text/html");
@@ -32,7 +32,7 @@ export const committersApi = createApi({
             row
               .querySelector("td:nth-child(1)")
               ?.textContent?.replace(".", "") || "0",
-            10
+            10,
           );
           const userCell = row.querySelector("td:nth-child(2)");
           const username =
@@ -41,7 +41,7 @@ export const committersApi = createApi({
             userCell?.querySelector("a")?.getAttribute("href") || "";
           const commits = parseInt(
             row.querySelector("td:nth-child(3)")?.textContent || "0",
-            10
+            10,
           );
           const avatar =
             row
@@ -66,4 +66,4 @@ export const committersApi = createApi({
   }),
 });
 
-export const { useGetTajikistanUsersQuery } = committersApi;
+export const { useGetCountryUsersQuery } = committersApi;
