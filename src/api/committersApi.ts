@@ -15,15 +15,13 @@ export const committersApi = createApi({
   }),
   endpoints: (builder) => ({
     getCountryUsers: builder.query<
-      { users: Committer[]; generatedAt: string },
+      { users: Committer[] },
       { country: string; mode: Mode }
     >({
       query: ({ country, mode }) => modeToUrl(country)[mode],
       transformResponse: (html: string) => {
         const parser = new DOMParser();
         const doc = parser.parseFromString(html, "text/html");
-        const codeElem = doc.querySelector("p code");
-        const generatedAt = codeElem?.textContent || "";
         const rows = doc.querySelectorAll("table.users-list tbody tr");
 
         const users: Committer[] = [];
@@ -60,7 +58,7 @@ export const committersApi = createApi({
             users.push({ rank, username, profile, commits, avatar, realname });
           }
         });
-        return { users, generatedAt };
+        return { users };
       },
     }),
   }),
