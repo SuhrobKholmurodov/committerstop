@@ -23,6 +23,8 @@ export const CountryCard = ({
 
   const topUsers = data?.users?.slice(0, 3) || [];
   const totalUsers = data?.users?.length || 0;
+  const totalCommits =
+    data?.users?.reduce((sum, user) => sum + user.commits, 0) || 0;
 
   return (
     <Link to={`/${country.slug}`} className="block group">
@@ -56,6 +58,21 @@ export const CountryCard = ({
           <div className="px-3 py-1 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-full">
             <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
               {totalUsers}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between mb-5 px-1">
+          <div className="flex items-center gap-1">
+            <Users className="w-4 h-4 text-gray-400" />
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              {totalUsers} devs
+            </span>
+          </div>
+          <div className="flex items-center gap-1">
+            <GitCommit className="w-4 h-4 text-gray-400" />
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              {totalCommits.toLocaleString()} commits
             </span>
           </div>
         </div>
@@ -98,6 +115,15 @@ export const CountryCard = ({
                         alt={user.username}
                         loading="lazy"
                       />
+                      <div
+                        className={`absolute -bottom-[2px] -right-[2px] w-[14px] h-[14px] rounded-full border-2 border-white dark:border-gray-800 ${
+                          index === 0
+                            ? "bg-yellow-400"
+                            : index === 1
+                              ? "bg-gray-300"
+                              : "bg-orange-500"
+                        }`}
+                      ></div>
                     </div>
                     <div>
                       <p className="font-medium text-sm text-gray-800 dark:text-gray-200">
