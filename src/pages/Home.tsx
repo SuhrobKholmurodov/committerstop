@@ -78,53 +78,65 @@ const Home = () => {
           content="Discover top GitHub contributors from countries worldwide. Explore rankings, stats, and connect with developers."
         />
       </Helmet>
-
-      <Header verifiedUser={verifiedUsers[0] || null} onLogout={handleLogout} />
-
-      <div className="mb-8 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 rounded-xl">
-        <p className="text-gray-600 dark:text-gray-300 text-center">
-          Discover {allCountries.length} countries with active GitHub
-          communities. Click any country to explore top contributors.
-        </p>
+      <div className="mb-[30px]">
+        <Header
+          verifiedUser={verifiedUsers[0] || null}
+          onLogout={handleLogout}
+        />
       </div>
-
-      {isLoading && visibleCountries.length === 0 ? (
-        <div className="grid grid-cols-3 gap-6">
-          {[...Array(12)].map((_, i) => (
-            <div
-              key={i}
-              className="border rounded-xl p-4 bg-white dark:bg-gray-900 animate-pulse"
-            >
-              <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-4"></div>
-              <div className="space-y-3">
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+      <div className="grid grid-cols-3 sm:grid-cols-1 gap-6">
+        {isLoading && visibleCountries.length === 0
+          ? [...Array(12)].map((_, i) => (
+              <div
+                key={i}
+                className="border rounded-2xl p-5 bg-white dark:bg-gray-900 animate-pulse"
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-7 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    <div>
+                      <div className="h-6 w-32 bg-gray-200 dark:bg-gray-700 rounded mb-1"></div>
+                      <div className="h-4 w-20 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    </div>
+                  </div>
+                  <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-full"></div>
+                </div>
+                <div className="space-y-3">
+                  <div className="h-4 w-28 bg-gray-200 dark:bg-gray-700 rounded mx-auto"></div>
+                  {[...Array(3)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center justify-between p-2"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700"></div>
+                        <div>
+                          <div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded mb-1"></div>
+                          <div className="h-3 w-16 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                        </div>
+                      </div>
+                      <div className="w-4 h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <>
-          <div className="grid grid-cols-3 gap-6">
-            {visibleCountries.map((country) => (
+            ))
+          : visibleCountries.map((country) => (
               <CountryCard
                 key={country.slug}
                 country={country}
                 onUserClick={setSelectedUser}
               />
             ))}
-          </div>
+      </div>
 
-          {hasMoreCountries && isLoading && (
-            <div className="flex flex-col items-center my-8">
-              <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-              <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                Loading more countries...
-              </p>
-            </div>
-          )}
-        </>
+      {hasMoreCountries && (
+        <div className="flex flex-col items-center my-8">
+          <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+            Loading more countries...
+          </p>
+        </div>
       )}
 
       {selectedUser && (

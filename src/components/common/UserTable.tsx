@@ -51,7 +51,7 @@ export const UserTable = ({
           <TableBody>
             {users.map((user) => {
               const verified = verifiedUsers.some(
-                (v) => v.username === user.username
+                (v) => v.username === user.username,
               );
               return (
                 <TableRow

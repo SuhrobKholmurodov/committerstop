@@ -3,6 +3,7 @@ import { useGetCountryUsersQuery } from "@/api";
 import { useGetFlagsQuery } from "@/api/flagsApi";
 import type { Committer } from "@/types";
 import { Users, GitCommit, Medal, ChevronRight } from "lucide-react";
+import Tippy from "@tippyjs/react";
 
 export const CountryCard = ({
   country,
@@ -28,11 +29,13 @@ export const CountryCard = ({
 
   return (
     <Link to={`/${country.slug}`} className="block group">
-      <div className="border rounded-2xl p-5 bg-white dark:bg-gray-900 hover:shadow-xl hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-300 hover:-translate-y-1">
+      <div className="border rounded-2xl p-5 bg-white dark:bg-gray-900 hover:shadow-xl hover:border-blue-300 dark:hover:border-blue-700 transition-all duration-200 hover:-translate-y-1">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className="relative">
-              {flagUrl ? (
+              {isLoading ? (
+                <div className="w-10 h-7 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+              ) : flagUrl ? (
                 <img
                   src={flagUrl}
                   className="w-10 h-7 rounded border shadow-sm object-cover"
@@ -44,58 +47,114 @@ export const CountryCard = ({
                   <span className="text-xs font-bold text-gray-500">🏳️</span>
                 </div>
               )}
-              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full border-2 border-white dark:border-gray-900"></div>
+              {!isLoading && (
+                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full border-2 border-white dark:border-gray-900"></div>
+              )}
             </div>
             <div>
-              <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400">
-                {country.name}
-              </h3>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                {country.slug}
-              </p>
+              {isLoading ? (
+                <>
+                  <div className="h-6 w-32 bg-gray-200 dark:bg-gray-700 rounded mb-1 animate-pulse"></div>
+                  <div className="h-4 w-20 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+                </>
+              ) : (
+                <>
+                  <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                    {country.name}
+                  </h3>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {country.slug}
+                  </p>
+                </>
+              )}
             </div>
           </div>
-          <div className="px-3 py-1 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-full">
-            <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
-              {totalUsers}
-            </span>
+
+          <div className="px-3 py-1 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-full">
+            {isLoading ? (
+              <div className="w-8 h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+            ) : totalUsers > 0 ? (
+              <Tippy
+                content={
+                  <span className="text-sm text-gray-800 dark:text-gray-200">
+                    Average commits per developer
+                  </span>
+                }
+                placement="top"
+                className="!bg-emerald-50 dark:!bg-emerald-900 !border !border-emerald-200 dark:!border-emerald-700 !text-emerald-800 dark:!text-emerald-200"
+                arrow={false}
+              >
+                <div className="flex items-center gap-1.5 cursor-pointer">
+                  <GitCommit className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                  <span className="text-sm font-bold text-emerald-700 dark:text-emerald-400">
+                    {Math.round(totalCommits / totalUsers).toLocaleString()}
+                  </span>
+                </div>
+              </Tippy>
+            ) : (
+              <Tippy
+                content="No data available"
+                className="!bg-gray-100 dark:!bg-gray-800 !border !border-gray-200 dark:!border-gray-700 !text-gray-800 dark:!text-gray-200"
+                arrow={false}
+              >
+                <span className="text-xs text-gray-500 cursor-help">—</span>
+              </Tippy>
+            )}
           </div>
         </div>
 
         <div className="flex items-center justify-between mb-5 px-1">
           <div className="flex items-center gap-1">
             <Users className="w-4 h-4 text-gray-400" />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              {totalUsers} devs
-            </span>
+            {isLoading ? (
+              <div className="h-4 w-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+            ) : (
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                {totalUsers} devs
+              </span>
+            )}
           </div>
           <div className="flex items-center gap-1">
             <GitCommit className="w-4 h-4 text-gray-400" />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              {totalCommits.toLocaleString()} commits
-            </span>
+            {isLoading ? (
+              <div className="h-4 w-20 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+            ) : (
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                {totalCommits.toLocaleString()} commits
+              </span>
+            )}
           </div>
         </div>
 
         <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <div className="w-full h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent dark:via-gray-700"></div>
-            <span className="text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">
-              Top Contributors
-            </span>
-            <div className="w-full h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent dark:via-gray-700"></div>
-          </div>
+          {isLoading ? (
+            <div className="h-4 w-28 bg-gray-200 dark:bg-gray-700 rounded mx-auto animate-pulse"></div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <div className="w-full h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent dark:via-gray-700"></div>
+              <span className="text-xs font-medium text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                Top Contributors
+              </span>
+              <div className="w-full h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent dark:via-gray-700"></div>
+            </div>
+          )}
 
           {isLoading ? (
             <div className="space-y-2">
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="flex items-center gap-2 animate-pulse">
-                  <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700"></div>
-                  <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24"></div>
+                <div key={i} className="flex items-center justify-between p-2">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+                    <div>
+                      <div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded mb-1 animate-pulse"></div>
+                      <div className="h-3 w-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+                    </div>
+                  </div>
+                  <div className="w-4 h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
                 </div>
               ))}
             </div>
-          ) : topUsers.length > 0 ? (
+          ) : (
             <div className="space-y-2">
               {topUsers.map((user, index) => (
                 <div
@@ -155,19 +214,10 @@ export const CountryCard = ({
                 </div>
               ))}
             </div>
-          ) : (
-            <div className="text-center py-4">
-              <div className="w-12 h-12 mx-auto mb-2 text-gray-300 dark:text-gray-600">
-                <Users className="w-full h-full" />
-              </div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                No contributors yet
-              </p>
-            </div>
           )}
         </div>
 
-        {totalUsers > 0 && (
+        {!isLoading && totalUsers > 0 && (
           <div className="mt-5 pt-4 border-t border-gray-100 dark:border-gray-800">
             <div className="flex items-center justify-center gap-2 text-blue-600 dark:text-blue-400 text-sm font-medium group-hover:underline">
               <span>View all contributors</span>
