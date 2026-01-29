@@ -12,6 +12,7 @@ import {
 import { useParams, useSearchParams } from "react-router-dom";
 import { useGetCountryUsersQuery } from "@/api";
 import { skipToken } from "@reduxjs/toolkit/query/react";
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
 
 const PAGE_SIZE = 20;
 
@@ -103,24 +104,34 @@ const Country = () => {
     return users;
   }, [localData, search, sortBy]);
 
-  useEffect(() => {
-    setVisibleCount(PAGE_SIZE);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [mode, search, sortBy]);
+  const visibleUsers = useMemo(
+    () => sortedAndFilteredUsers.slice(0, visibleCount),
+    [sortedAndFilteredUsers, visibleCount],
+  );
+
+  const hasMoreUsers = visibleCount < sortedAndFilteredUsers.length;
+
+  const handleLoadMore = () => {
+    if (!isFetching && hasMoreUsers) {
+      setVisibleCount((prev) => prev + PAGE_SIZE);
+    }
+  };
+
+  useInfiniteScroll({
+    isLoading: isFetching,
+    hasMore: hasMoreUsers,
+    onLoadMore: handleLoadMore,
+    threshold: 200,
+  });
 
   useEffect(() => {
-    const onScroll = () => {
-      if (
-        window.innerHeight + window.scrollY >=
-          document.body.offsetHeight - 200 &&
-        visibleCount < sortedAndFilteredUsers.length
-      ) {
-        setVisibleCount((v) => v + PAGE_SIZE);
-      }
-    };
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [visibleCount, sortedAndFilteredUsers.length]);
+    setVisibleCount(PAGE_SIZE);
+  }, [mode, search, sortBy]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("verifiedUsers");
+    setVerifiedUsers([]);
+  };
 
   if (!slug) {
     return (
@@ -133,19 +144,18 @@ const Country = () => {
     );
   }
 
+  const formattedCountryName = slug
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+
   return (
     <div className="max-w-6xl mx-auto p-4">
       <Helmet>
-        <title>Most active GitHub users in {slug}</title>
+        <title>Most active GitHub users in {formattedCountryName}</title>
       </Helmet>
 
-      <Header
-        verifiedUser={verifiedUsers[0] || null}
-        onLogout={() => {
-          localStorage.removeItem("verifiedUsers");
-          setVerifiedUsers([]);
-        }}
-      />
+      <Header verifiedUser={verifiedUsers[0] || null} onLogout={handleLogout} />
 
       {data?.generatedAt && (
         <p className="text-start text-sm text-gray-500 dark:text-gray-400 mb-4">
@@ -164,7 +174,7 @@ const Country = () => {
         setSortBy={setSortBy}
       />
 
-      {(isFetching || localData.length === 0) && <LoadingSpinner />}
+      {isFetching && localData.length === 0 && <LoadingSpinner />}
 
       {error && (
         <ErrorMessage
@@ -180,17 +190,20 @@ const Country = () => {
         </p>
       )}
 
-      {!error && sortedAndFilteredUsers.length > 0 && !isFetching && (
+      {!error && sortedAndFilteredUsers.length > 0 && (
         <>
           <UserTable
-            users={sortedAndFilteredUsers.slice(0, visibleCount)}
+            users={visibleUsers}
             onUserVerified={handleUserVerified}
             verifiedUsers={verifiedUsers}
           />
 
-          {visibleCount < sortedAndFilteredUsers.length && (
-            <div className="flex justify-center my-4">
+          {hasMoreUsers && isFetching && (
+            <div className="flex flex-col items-center my-8">
               <LoadingSpinner />
+              <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                Loading more users...
+              </p>
             </div>
           )}
         </>

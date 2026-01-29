@@ -1,16 +1,52 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Helmet } from "react-helmet-async";
 import { useGetCountriesQuery } from "@/api/countriesApi";
 import type { Committer } from "@/types";
 import { UserDialog, type VerifiedUser } from "@/components/common";
 import { Header } from "../components/common/Header";
 import { CountryCard } from "@/components/common/CountryCard";
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
+
+const COUNTRIES_PER_PAGE = 20;
 
 const Home = () => {
-  const { data: countries, isLoading } = useGetCountriesQuery();
+  const { data: allCountries = [], isLoading } = useGetCountriesQuery();
   const [selectedUser, setSelectedUser] = useState<Committer | null>(null);
-
   const [verifiedUsers, setVerifiedUsers] = useState<VerifiedUser[]>([]);
+  const [visibleCount, setVisibleCount] = useState(COUNTRIES_PER_PAGE);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("verifiedUsers");
+    if (stored) {
+      try {
+        setVerifiedUsers(JSON.parse(stored));
+      } catch {
+        setVerifiedUsers([]);
+      }
+    }
+  }, []);
+
+  const visibleCountries = useMemo(
+    () => allCountries.slice(0, visibleCount),
+    [allCountries, visibleCount],
+  );
+
+  const hasMoreCountries = visibleCount < allCountries.length;
+
+  const handleLoadMore = () => {
+    if (!isLoading && hasMoreCountries) {
+      setVisibleCount((prev) =>
+        Math.min(prev + COUNTRIES_PER_PAGE, allCountries.length),
+      );
+    }
+  };
+
+  useInfiniteScroll({
+    isLoading,
+    hasMore: hasMoreCountries,
+    onLoadMore: handleLoadMore,
+    threshold: 200,
+  });
 
   const handleUserVerified = (user: Committer, gistUrl = "") => {
     setVerifiedUsers((prev) => {
@@ -47,12 +83,12 @@ const Home = () => {
 
       <div className="mb-8 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-900 rounded-xl">
         <p className="text-gray-600 dark:text-gray-300 text-center">
-          Discover {countries?.length} countries with active GitHub communities.
-          Click any country to explore top contributors.
+          Discover {allCountries.length} countries with active GitHub
+          communities. Click any country to explore top contributors.
         </p>
       </div>
 
-      {isLoading ? (
+      {isLoading && visibleCountries.length === 0 ? (
         <div className="grid grid-cols-3 gap-6">
           {[...Array(12)].map((_, i) => (
             <div
@@ -71,7 +107,7 @@ const Home = () => {
       ) : (
         <>
           <div className="grid grid-cols-3 gap-6">
-            {countries?.map((country) => (
+            {visibleCountries.map((country) => (
               <CountryCard
                 key={country.slug}
                 country={country}
@@ -80,12 +116,14 @@ const Home = () => {
             ))}
           </div>
 
-          <div className="mt-8 text-center text-gray-500 dark:text-gray-400">
-            <p>
-              Showing {countries?.length || 0} countries with active GitHub
-              communities
-            </p>
-          </div>
+          {hasMoreCountries && isLoading && (
+            <div className="flex flex-col items-center my-8">
+              <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+              <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                Loading more countries...
+              </p>
+            </div>
+          )}
         </>
       )}
 
