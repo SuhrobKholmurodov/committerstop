@@ -70,23 +70,23 @@ export const CountryCard = ({
             </div>
           </div>
 
-          <div className="px-3 py-1 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 rounded-full">
+          <div className="px-3 py-1 bg-gradient-to-r from-blue-50 to-teal-50 dark:from-blue-900/20 dark:to-teal-900/20 rounded-full">
             {isLoading ? (
               <div className="w-8 h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
             ) : totalUsers > 0 ? (
               <Tippy
                 content={
                   <span className="text-sm text-gray-800 dark:text-gray-200">
-                    Average commits per developer
+                    Avg commits per dev
                   </span>
                 }
                 placement="top"
-                className="!bg-emerald-50 dark:!bg-emerald-900 !border !border-emerald-200 dark:!border-emerald-700 !text-emerald-800 dark:!text-emerald-200"
+                className="!bg-blue-50 dark:!bg-blue-900 !border !border-blue-200 dark:!border-blue-700 !text-blue-800 dark:!text-blue-200"
                 arrow={false}
               >
                 <div className="flex items-center gap-1.5 cursor-pointer">
-                  <GitCommit className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                  <span className="text-sm font-bold text-emerald-700 dark:text-emerald-400">
+                  <GitCommit className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                  <span className="text-sm font-bold text-blue-700 dark:text-blue-400">
                     {Math.round(totalCommits / totalUsers).toLocaleString()}
                   </span>
                 </div>
@@ -217,13 +217,21 @@ export const CountryCard = ({
           )}
         </div>
 
-        {!isLoading && totalUsers > 0 && (
+        {isLoading ? (
           <div className="mt-5 pt-4 border-t border-gray-100 dark:border-gray-800">
-            <div className="flex items-center justify-center gap-2 text-blue-600 dark:text-blue-400 text-sm font-medium group-hover:underline">
-              <span>View all contributors</span>
-              <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            <div className="flex items-center justify-center">
+              <div className="h-6 w-[180px] bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
             </div>
           </div>
+        ) : (
+          totalUsers > 0 && (
+            <div className="mt-5 pt-4 border-t border-gray-100 dark:border-gray-800">
+              <div className="flex items-center justify-center gap-2 text-blue-600 dark:text-blue-400 text-sm font-medium group-hover:underline">
+                <span>View all contributors</span>
+                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </div>
+          )
         )}
       </div>
     </Link>

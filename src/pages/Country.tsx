@@ -9,10 +9,11 @@ import {
   Header,
   type VerifiedUser,
 } from "@/components/common";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams, Link } from "react-router-dom";
 import { useGetCountryUsersQuery } from "@/api";
 import { skipToken } from "@reduxjs/toolkit/query/react";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
+import { ArrowLeft, Users } from "lucide-react";
 
 const PAGE_SIZE = 20;
 
@@ -150,64 +151,112 @@ const Country = () => {
     .join(" ");
 
   return (
-    <div className="max-w-6xl mx-auto p-4">
+    <div className="max-w-7xl mx-auto">
       <Helmet>
         <title>Most active GitHub users in {formattedCountryName}</title>
       </Helmet>
 
-      <Header verifiedUser={verifiedUsers[0] || null} onLogout={handleLogout} />
-
-      {data?.generatedAt && (
-        <p className="text-start text-sm text-gray-500 dark:text-gray-400 mb-4">
-          This list was generated at{" "}
-          <code className="font-bold">
-            {data.generatedAt.replace(/\s\+0000\.?$/, "")}
-          </code>
-        </p>
-      )}
-
-      <FilterBar
-        mode={mode}
-        setMode={setMode}
-        refetch={refetch}
-        sortBy={sortBy}
-        setSortBy={setSortBy}
+      <Header
+        countryName={formattedCountryName}
+        verifiedUser={verifiedUsers[0] || null}
+        onLogout={handleLogout}
       />
 
-      {isFetching && localData.length === 0 && <LoadingSpinner />}
+      <div className="pt-24 px-4 md:px-6">
+        {/* Simple clean Back button */}
+        <div className="mb-6">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium 
+              text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white
+              hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>All Countries</span>
+          </Link>
+        </div>
 
-      {error && (
-        <ErrorMessage
-          title="Error loading data"
-          message="Try refreshing the page."
-          className="mt-10"
-        />
-      )}
+        {data?.generatedAt && (
+          <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Last updated:{" "}
+              <code className="font-mono text-gray-800 dark:text-gray-300 px-1">
+                {data.generatedAt.replace(/\s\+0000\.?$/, "")}
+              </code>
+            </p>
+          </div>
+        )}
 
-      {!error && sortedAndFilteredUsers.length === 0 && !isFetching && (
-        <p className="text-center text-gray-600 dark:text-gray-400">
-          No users found
-        </p>
-      )}
-
-      {!error && sortedAndFilteredUsers.length > 0 && (
-        <>
-          <UserTable
-            users={visibleUsers}
-            onUserVerified={handleUserVerified}
-            verifiedUsers={verifiedUsers}
+        <div className="sticky top-24 z-20 mb-6">
+          <FilterBar
+            mode={mode}
+            setMode={setMode}
+            refetch={refetch}
+            sortBy={sortBy}
+            setSortBy={setSortBy}
           />
+        </div>
 
-          {hasMoreUsers && isFetching && (
-            <div className="flex flex-col items-center my-8">
-              <LoadingSpinner />
-              <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                Loading more users...
-              </p>
+        {isFetching && localData.length === 0 && (
+          <div className="py-16">
+            <LoadingSpinner />
+          </div>
+        )}
+
+        {error && (
+          <ErrorMessage
+            title="Error loading data"
+            message="Try refreshing the page or check your connection."
+            className="mt-10"
+          />
+        )}
+
+        {!error && sortedAndFilteredUsers.length === 0 && !isFetching && (
+          <div className="text-center py-20">
+            <div className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-700">
+              <Users className="w-full h-full" />
             </div>
-          )}
-        </>
-      )}
+            <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">
+              No users in {formattedCountryName} yet
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-500 max-w-md mx-auto">
+              Set your location to '{formattedCountryName}' in your GitHub
+              profile
+            </p>
+          </div>
+        )}
+
+        {!error && sortedAndFilteredUsers.length > 0 && (
+          <>
+            <UserTable
+              users={visibleUsers}
+              onUserVerified={handleUserVerified}
+              verifiedUsers={verifiedUsers}
+            />
+
+            {hasMoreUsers && isFetching && (
+              <div className="flex flex-col items-center my-8">
+                <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                  Loading more users...
+                </p>
+              </div>
+            )}
+
+            <div className="mt-8 pt-6 border-t dark:border-gray-800">
+              <Link
+                to="/"
+                className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium 
+                  text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white
+                  hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>Back to all countries</span>
+              </Link>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 };

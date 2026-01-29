@@ -9,7 +9,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { RefreshCw, Search, X } from "lucide-react";
-import { Toast, Switcher } from "@/components/common";
+import { Toast } from "@/components/common";
 import type { Mode, SortOption } from "@/types";
 import { useSearchParams } from "react-router-dom";
 import Tippy from "@tippyjs/react";
@@ -34,7 +34,6 @@ export const FilterBar = ({
   const [searchParams, setSearchParams] = useSearchParams();
   const urlSearch = searchParams.get("search") || "";
   const [inputValue, setInputValue] = useState(urlSearch);
-  const [showStickySwitcher, setShowStickySwitcher] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const urlSort = searchParams.get("sort") as SortOption;
@@ -58,16 +57,6 @@ export const FilterBar = ({
   useEffect(() => {
     setInputValue(urlSearch);
   }, [urlSearch]);
-
-  useEffect(() => {
-    const header = document.getElementById("header-section");
-    const onScroll = () => {
-      if (!header) return;
-      setShowStickySwitcher(header.getBoundingClientRect().bottom <= 0);
-    };
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   const onModeChange = (newMode: Mode) => {
     setMode(newMode);
@@ -123,8 +112,8 @@ export const FilterBar = ({
               {value === "commits"
                 ? "Commits"
                 : value === "contributions"
-                ? "Contributions"
-                : "All"}
+                  ? "Contributions"
+                  : "All"}
             </ToggleGroupItem>
           ))}
         </ToggleGroup>
@@ -210,16 +199,6 @@ export const FilterBar = ({
               className="absolute right-12 top-1/2 -translate-y-1/2 text-gray-400 cursor-pointer hover:text-red-500 transition-colors hover:scale-110"
             />
           )}
-          <div
-            className={`transition-all duration-300 ease-in-out transform 
-            ${
-              showStickySwitcher
-                ? "max-w-[50px] opacity-100 translate-y-0"
-                : "max-w-0 opacity-0 -translate-y-2 overflow-hidden"
-            }`}
-          >
-            <Switcher />
-          </div>
         </div>
       </div>
     </div>

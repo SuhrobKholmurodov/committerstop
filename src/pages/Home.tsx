@@ -70,7 +70,7 @@ const Home = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-4 md:p-6">
+    <div className="max-w-7xl mx-auto p-4">
       <Helmet>
         <title>GitHub Contributors by Country | Global Rankings</title>
         <meta
@@ -78,12 +78,14 @@ const Home = () => {
           content="Discover top GitHub contributors from countries worldwide. Explore rankings, stats, and connect with developers."
         />
       </Helmet>
-      <div className="mb-[30px]">
+
+      <div className="mb-[80px]">
         <Header
           verifiedUser={verifiedUsers[0] || null}
           onLogout={handleLogout}
         />
       </div>
+
       <div className="grid grid-cols-3 sm:grid-cols-1 gap-6">
         {isLoading && visibleCountries.length === 0
           ? [...Array(12)].map((_, i) => (
