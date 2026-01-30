@@ -70,10 +70,10 @@ export const CountryCard = ({
             </div>
           </div>
 
-          <div className="px-3 py-1 bg-gradient-to-r from-blue-50 to-teal-50 dark:from-blue-900/20 dark:to-teal-900/20 rounded-full">
-            {isLoading ? (
-              <div className="w-8 h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-            ) : totalUsers > 0 ? (
+          {isLoading ? (
+            <div className="w-[60px] h-[30px] bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse"></div>
+          ) : totalUsers > 0 ? (
+            <div className="px-3 py-1 bg-gradient-to-r from-blue-50 to-teal-50 dark:from-blue-900/20 dark:to-teal-900/20 rounded-full">
               <Tippy
                 content={
                   <span className="text-sm text-gray-800 dark:text-gray-200">
@@ -91,7 +91,9 @@ export const CountryCard = ({
                   </span>
                 </div>
               </Tippy>
-            ) : (
+            </div>
+          ) : (
+            <div className="px-3 py-1 bg-gradient-to-r from-blue-50 to-teal-50 dark:from-blue-900/20 dark:to-teal-900/20 rounded-full">
               <Tippy
                 content="No data available"
                 className="!bg-gray-100 dark:!bg-gray-800 !border !border-gray-200 dark:!border-gray-700 !text-gray-800 dark:!text-gray-200"
@@ -99,31 +101,27 @@ export const CountryCard = ({
               >
                 <span className="text-xs text-gray-500 cursor-help">—</span>
               </Tippy>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center justify-between mb-5 px-1">
-          <div className="flex items-center gap-1">
-            <Users className="w-4 h-4 text-gray-400" />
-            {isLoading ? (
-              <div className="h-4 w-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-            ) : (
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                {totalUsers} devs
-              </span>
-            )}
-          </div>
-          <div className="flex items-center gap-1">
-            <GitCommit className="w-4 h-4 text-gray-400" />
-            {isLoading ? (
-              <div className="h-4 w-20 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-            ) : (
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                {totalCommits.toLocaleString()} commits
-              </span>
-            )}
-          </div>
+          {isLoading ? (
+            <div className="h-4 w-[90px] bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+          ) : (
+            <span className="text-sm font-medium  flex items-center gap-1 text-gray-700 dark:text-gray-300">
+              <Users className="w-4 h-4 text-gray-400" />
+              {totalUsers} devs
+            </span>
+          )}
+          {isLoading ? (
+            <div className="h-4 w-[130px] bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+          ) : (
+            <span className="text-sm font-medium flex items-center gap-1 text-gray-700 dark:text-gray-300">
+              <GitCommit className="w-4 h-4 text-gray-400" />
+              {totalCommits.toLocaleString()} commits
+            </span>
+          )}
         </div>
 
         <div className="space-y-3">

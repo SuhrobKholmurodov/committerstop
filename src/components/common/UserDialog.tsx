@@ -26,7 +26,7 @@ export const UserDialog = ({ user, open, onOpenChange }: UserDialogProps) => {
     isLoading,
   } = useGetGitHubUserByUsernameQuery(user.username, {
     skip: !open,
-    refetchOnMountOrArgChange: true,
+    refetchOnMountOrArgChange: false,
   });
 
   return (
