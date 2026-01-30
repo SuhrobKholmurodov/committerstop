@@ -1,8 +1,8 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Helmet } from "react-helmet-async";
 import { useGetCountriesQuery } from "@/api/countriesApi";
 import type { Committer } from "@/types";
-import { UserDialog, type VerifiedUser } from "@/components/common";
+import { UserDialog } from "@/components/common";
 import { Header } from "../components/common/Header";
 import { CountryCard } from "@/components/common/CountryCard";
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll";
@@ -12,19 +12,7 @@ const COUNTRIES_PER_PAGE = 20;
 const Home = () => {
   const { data: allCountries = [], isLoading } = useGetCountriesQuery();
   const [selectedUser, setSelectedUser] = useState<Committer | null>(null);
-  const [verifiedUsers, setVerifiedUsers] = useState<VerifiedUser[]>([]);
   const [visibleCount, setVisibleCount] = useState(COUNTRIES_PER_PAGE);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("verifiedUsers");
-    if (stored) {
-      try {
-        setVerifiedUsers(JSON.parse(stored));
-      } catch {
-        setVerifiedUsers([]);
-      }
-    }
-  }, []);
 
   const visibleCountries = useMemo(
     () => allCountries.slice(0, visibleCount),
@@ -48,27 +36,6 @@ const Home = () => {
     threshold: 200,
   });
 
-  const handleUserVerified = (user: Committer, gistUrl = "") => {
-    setVerifiedUsers((prev) => {
-      if (prev.find((u) => u.username === user.username)) return prev;
-      const updated = [
-        ...prev,
-        {
-          username: user.username,
-          gistUrl,
-          verifiedAt: new Date().toISOString(),
-        },
-      ];
-      localStorage.setItem("verifiedUsers", JSON.stringify(updated));
-      return updated;
-    });
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("verifiedUsers");
-    setVerifiedUsers([]);
-  };
-
   return (
     <div className="max-w-7xl mx-auto p-4">
       <Helmet>
@@ -80,10 +47,7 @@ const Home = () => {
       </Helmet>
 
       <div className="mb-[80px]">
-        <Header
-          verifiedUser={verifiedUsers[0] || null}
-          onLogout={handleLogout}
-        />
+        <Header />
       </div>
 
       <div className="grid grid-cols-3 sm:grid-cols-1 gap-6">
@@ -146,7 +110,6 @@ const Home = () => {
           user={selectedUser}
           open={true}
           onOpenChange={() => setSelectedUser(null)}
-          onVerified={handleUserVerified}
         />
       )}
     </div>

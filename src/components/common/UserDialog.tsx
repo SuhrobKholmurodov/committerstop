@@ -10,31 +10,16 @@ import { Button } from "@/components/ui/button";
 import { ArrowUpRight } from "lucide-react";
 import { LoadingSpinner } from "./LoadingSpinner";
 import { ErrorMessage } from "./ErrorMessage";
-import { useEffect, useState } from "react";
 import type { Committer } from "@/types";
-import UserVerificationDialog from "./UserVerificationDialog";
-import { useGetGitHubUserByUsernameQuery, useVerifyUserGistQuery } from "@/api";
+import { useGetGitHubUserByUsernameQuery } from "@/api";
 
 interface UserDialogProps {
   user: Committer;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onVerified: (user: Committer) => void;
 }
 
-// Simplified VerifiedUser: only verification info
-export interface VerifiedUser {
-  username: string;
-  gistUrl: string;
-  verifiedAt: string;
-}
-
-export const UserDialog = ({
-  user,
-  open,
-  onOpenChange,
-  onVerified,
-}: UserDialogProps) => {
+export const UserDialog = ({ user, open, onOpenChange }: UserDialogProps) => {
   const {
     data: userInfo,
     error,
@@ -43,57 +28,6 @@ export const UserDialog = ({
     skip: !open,
     refetchOnMountOrArgChange: true,
   });
-
-  const {
-    data: verificationData,
-    isFetching: isCheckingVerification,
-    refetch: refetchVerification,
-    error: verificationError,
-  } = useVerifyUserGistQuery({ username: user.username }, { skip: !open });
-
-  const [verificationOpen, setVerificationOpen] = useState(false);
-  const [verifiedUsers, setVerifiedUsers] = useState<VerifiedUser[]>([]);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("verifiedUsers");
-    if (stored) {
-      try {
-        setVerifiedUsers(JSON.parse(stored));
-      } catch {
-        setVerifiedUsers([]);
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    if (open) {
-      refetchVerification?.();
-    }
-  }, [open, refetchVerification]);
-
-  useEffect(() => {
-    if (verificationData?.verified) {
-      const stored = localStorage.getItem("verifiedUsers");
-      const parsed: VerifiedUser[] = stored ? JSON.parse(stored) : [];
-      if (!parsed.find((u) => u.username === user.username)) {
-        parsed.push({
-          username: user.username,
-          gistUrl: verificationData.gistUrl || "",
-          verifiedAt: new Date().toISOString(),
-        });
-
-        localStorage.setItem("verifiedUsers", JSON.stringify(parsed));
-        setVerifiedUsers(parsed);
-      }
-    }
-  }, [verificationData, user.username]);
-
-  const hasAnyLocallyVerified = verifiedUsers.length > 0;
-  const isGloballyVerified = Boolean(verificationData?.verified);
-  const showVerifyButton = !hasAnyLocallyVerified && !isGloballyVerified;
-  const isVerified =
-    isGloballyVerified ||
-    verifiedUsers.some((u) => u.username === user.username);
 
   return (
     <>
@@ -176,58 +110,18 @@ export const UserDialog = ({
                     Location: {userInfo.location}
                   </p>
                 )}
-
-                {isCheckingVerification && (
-                  <p className="text-sm text-gray-500">
-                    Checking verification status...
-                  </p>
-                )}
-                {verificationError && (
-                  <p className="text-sm text-red-500">
-                    Verification check failed
-                  </p>
-                )}
-
-                {isVerified && (
-                  <p className="text-sm text-green-600 mt-2">
-                    ✅ Account is verified.
-                  </p>
-                )}
               </div>
             )}
           </DialogDescription>
           <DialogFooter
-            className={`grid ${
-              showVerifyButton ? "grid-cols-2 gap-2" : "grid-cols-1"
-            } border-t border-gray-200 dark:border-gray-700 pt-4 w-full`}
+            className={`grid border-t border-gray-200 dark:border-gray-700 pt-4 w-full`}
           >
-            {showVerifyButton && (
-              <Button
-                className="w-full bg-green-700 text-white hover:bg-green-600"
-                onClick={() => setVerificationOpen(true)}
-              >
-                It's me
-              </Button>
-            )}
             <Button className="w-full" onClick={() => onOpenChange(false)}>
-              Close
+              Ok
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {user && (
-        <UserVerificationDialog
-          username={user.username}
-          open={verificationOpen}
-          onOpenChange={setVerificationOpen}
-          onVerified={() => {
-            onVerified(user);
-            setVerificationOpen(false);
-            onOpenChange(false);
-          }}
-        />
-      )}
     </>
   );
 };

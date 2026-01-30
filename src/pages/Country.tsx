@@ -7,7 +7,6 @@ import {
   UserTable,
   FilterBar,
   Header,
-  type VerifiedUser,
 } from "@/components/common";
 import { useParams, useSearchParams, Link } from "react-router-dom";
 import { useGetCountryUsersQuery } from "@/api";
@@ -28,39 +27,10 @@ const Country = () => {
     (searchParams.get("sort") as SortOption) || "commits-desc";
   const [sortBy, setSortBy] = useState<SortOption>(initialSort);
 
-  const [verifiedUsers, setVerifiedUsers] = useState<VerifiedUser[]>([]);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [localData, setLocalData] = useState<Committer[]>([]);
 
   const search = searchParams.get("search") || "";
-
-  useEffect(() => {
-    const stored = localStorage.getItem("verifiedUsers");
-    if (stored) {
-      try {
-        setVerifiedUsers(JSON.parse(stored));
-      } catch {
-        setVerifiedUsers([]);
-      }
-    }
-  }, []);
-
-  const handleUserVerified = (user: Committer, gistUrl = "") => {
-    setVerifiedUsers((prev) => {
-      if (prev.find((u) => u.username === user.username)) return prev;
-      const updated: VerifiedUser[] = [
-        ...prev,
-        {
-          username: user.username,
-          gistUrl,
-          verifiedAt: new Date().toISOString(),
-        },
-      ];
-      localStorage.setItem("verifiedUsers", JSON.stringify(updated));
-      return updated;
-    });
-  };
-
   const { data, error, isFetching, refetch } = useGetCountryUsersQuery(
     slug ? { country: slug, mode } : skipToken,
     {
@@ -129,11 +99,6 @@ const Country = () => {
     setVisibleCount(PAGE_SIZE);
   }, [mode, search, sortBy]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("verifiedUsers");
-    setVerifiedUsers([]);
-  };
-
   if (!slug) {
     return (
       <div className="max-w-6xl mx-auto p-4">
@@ -156,14 +121,9 @@ const Country = () => {
         <title>Most active GitHub users in {formattedCountryName}</title>
       </Helmet>
 
-      <Header
-        countryName={formattedCountryName}
-        verifiedUser={verifiedUsers[0] || null}
-        onLogout={handleLogout}
-      />
+      <Header countryName={formattedCountryName} />
 
       <div className="pt-24 px-4 md:px-6">
-        {/* Simple clean Back button */}
         <div className="mb-6">
           <Link
             to="/"
@@ -187,7 +147,7 @@ const Country = () => {
           </div>
         )}
 
-        <div className="sticky top-24 z-20 mb-6">
+        <div className="sticky top-[70px] z-20 mb-6">
           <FilterBar
             mode={mode}
             setMode={setMode}
@@ -211,28 +171,44 @@ const Country = () => {
           />
         )}
 
-        {!error && sortedAndFilteredUsers.length === 0 && !isFetching && (
-          <div className="text-center py-20">
-            <div className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-700">
-              <Users className="w-full h-full" />
+        {!error &&
+          sortedAndFilteredUsers.length === 0 &&
+          search.trim() !== "" &&
+          !isFetching && (
+            <div className="text-center py-20">
+              <div className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-700">
+                <Users className="w-full h-full" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">
+                No users found matching "{search}"
+              </h3>
+              <p className="text-sm text-gray-500 dark:text-gray-500 max-w-md mx-auto">
+                Try a different username or clear the search
+              </p>
             </div>
-            <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">
-              No users in {formattedCountryName} yet
-            </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-500 max-w-md mx-auto">
-              Set your location to '{formattedCountryName}' in your GitHub
-              profile
-            </p>
-          </div>
-        )}
+          )}
+
+        {!error &&
+          sortedAndFilteredUsers.length === 0 &&
+          search.trim() === "" &&
+          !isFetching && (
+            <div className="text-center py-20">
+              <div className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-700">
+                <Users className="w-full h-full" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-2">
+                No users in {formattedCountryName} yet
+              </h3>
+              <p className="text-sm text-gray-500 dark:text-gray-500 max-w-md mx-auto">
+                Set your location to '{formattedCountryName}' in your GitHub
+                profile
+              </p>
+            </div>
+          )}
 
         {!error && sortedAndFilteredUsers.length > 0 && (
           <>
-            <UserTable
-              users={visibleUsers}
-              onUserVerified={handleUserVerified}
-              verifiedUsers={verifiedUsers}
-            />
+            <UserTable users={visibleUsers} />
 
             {hasMoreUsers && isFetching && (
               <div className="flex flex-col items-center my-8">

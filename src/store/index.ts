@@ -1,5 +1,4 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { verifyGistApi } from "@/api/verifyGistApi";
 import { committersApi, githubApi } from "@/api";
 import { countriesApi } from "@/api/countriesApi";
 import { flagsApi } from "@/api/flagsApi";
@@ -8,7 +7,6 @@ export const store = configureStore({
   reducer: {
     [committersApi.reducerPath]: committersApi.reducer,
     [githubApi.reducerPath]: githubApi.reducer,
-    [verifyGistApi.reducerPath]: verifyGistApi.reducer,
     [countriesApi.reducerPath]: countriesApi.reducer,
     [flagsApi.reducerPath]: flagsApi.reducer,
   },
@@ -16,7 +14,6 @@ export const store = configureStore({
     getDefaultMiddleware()
       .concat(committersApi.middleware)
       .concat(githubApi.middleware)
-      .concat(verifyGistApi.middleware)
       .concat(countriesApi.middleware)
       .concat(flagsApi.middleware),
 });

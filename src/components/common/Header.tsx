@@ -1,22 +1,14 @@
-import { Switcher, type VerifiedUser } from "@/components/common";
-import UserDropdown from "./UserDropdown";
+import { Switcher } from "@/components/common";
 import { CircleQuestionMark } from "lucide-react";
 import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css";
 
 interface HeaderProps {
   countryName?: string;
-  verifiedUser?: VerifiedUser | null;
-  onLogout?: () => void;
 }
 
-export const Header = ({
-  countryName,
-  verifiedUser = null,
-  onLogout = () => {},
-}: HeaderProps) => {
+export const Header = ({ countryName }: HeaderProps) => {
   const isHomePage = !countryName;
-
   return (
     <div
       id="header-section"
@@ -65,12 +57,8 @@ export const Header = ({
               </div>
             )}
           </div>
-
           <div className="flex gap-3 items-center sm:justify-between sm:flex-row-reverse sm:w-full">
             <Switcher />
-            {verifiedUser && (
-              <UserDropdown verifiedUser={verifiedUser} onLogout={onLogout} />
-            )}
           </div>
         </div>
       </div>

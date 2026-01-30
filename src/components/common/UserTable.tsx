@@ -8,20 +8,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { Committer } from "@/types";
-import { UserDialog, type VerifiedUser } from "./UserDialog";
-import { ShieldCheck } from "lucide-react";
+import { UserDialog } from "./UserDialog";
 
 interface UserTableProps {
   users: Committer[];
-  onUserVerified: (user: Committer) => void;
-  verifiedUsers: VerifiedUser[];
 }
 
-export const UserTable = ({
-  users,
-  onUserVerified,
-  verifiedUsers,
-}: UserTableProps) => {
+export const UserTable = ({ users }: UserTableProps) => {
   const [selectedUser, setSelectedUser] = useState<Committer | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -50,17 +43,10 @@ export const UserTable = ({
           </TableHeader>
           <TableBody>
             {users.map((user) => {
-              const verified = verifiedUsers.some(
-                (v) => v.username === user.username,
-              );
               return (
                 <TableRow
                   key={user.username}
-                  className={`transition-all duration-200 ${
-                    verified
-                      ? "bg-gradient-to-r from-emerald-500/10 to-teal-100/10 dark:from-emerald-950/90 dark:to-teal-950/30 border-l-4 border-l-emerald-500 border-r border-r-transparent"
-                      : "hover:bg-gray-100 dark:hover:bg-gray-800"
-                  }`}
+                  className={`transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-800`}
                 >
                   <TableCell className="text-center sticky left-0 backdrop-blur-lg font-medium">
                     {user.rank}
@@ -72,9 +58,6 @@ export const UserTable = ({
                       onClick={() => openDialog(user)}
                     >
                       {user.username}
-                      {verified && (
-                        <ShieldCheck className="text-emerald-500" size={18} />
-                      )}
                     </button>
                     <span className="text-sm text-gray-500">
                       {user.realname && user.realname.length > 0
@@ -89,11 +72,7 @@ export const UserTable = ({
                     <img
                       src={user.avatar || "/placeholder.svg"}
                       alt={user.username}
-                      className={`w-10 h-10 rounded-full mx-auto border-2 ${
-                        verified
-                          ? "border-emerald-500 ring-2 ring-emerald-200 dark:ring-emerald-800"
-                          : "border-gray-200 dark:border-gray-600"
-                      }`}
+                      className={`w-10 h-10 rounded-full mx-auto border-2 border-gray-200 dark:border-gray-600`}
                     />
                   </TableCell>
                 </TableRow>
@@ -109,7 +88,6 @@ export const UserTable = ({
           open={dialogOpen}
           key={selectedUser.username}
           onOpenChange={setDialogOpen}
-          onVerified={onUserVerified}
         />
       )}
     </>
