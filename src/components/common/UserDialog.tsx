@@ -3,7 +3,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -39,7 +38,7 @@ export const UserDialog = ({ user, open, onOpenChange }: UserDialogProps) => {
             </DialogTitle>
           </DialogHeader>
 
-          <DialogDescription className="mt-4 min-h-[200px]">
+          <div className="mt-4 min-h-[200px]">
             {isLoading && <LoadingSpinner />}
             {!isLoading && error && (
               <ErrorMessage
@@ -112,7 +111,7 @@ export const UserDialog = ({ user, open, onOpenChange }: UserDialogProps) => {
                 )}
               </div>
             )}
-          </DialogDescription>
+          </div>
           <DialogFooter
             className={`grid border-t border-gray-200 dark:border-gray-700 pt-4 w-full`}
           >
