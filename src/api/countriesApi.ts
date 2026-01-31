@@ -9,23 +9,10 @@ export interface Country {
 
 export const countriesApi = createApi({
   reducerPath: "countriesApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: API_BASE_URL,
-    responseHandler: (r) => r.text(),
-  }),
+  baseQuery: fetchBaseQuery({ baseUrl: API_BASE_URL }),
   endpoints: (builder) => ({
     getCountries: builder.query<Country[], void>({
       query: () => "countries",
-      transformResponse: (html: string) => {
-        const doc = new DOMParser().parseFromString(html, "text/html");
-        const links = doc.querySelectorAll("ul.country-list li a");
-
-        return [...links].map((a) => ({
-          slug: a.getAttribute("href")?.replace("/", "") || "unknown",
-          name: a.textContent?.trim() || "Unknown",
-          flagUrl: "",
-        }));
-      },
     }),
   }),
 });
